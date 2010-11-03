@@ -1,6 +1,7 @@
 #!python -u
 # -*- coding: utf-8 -*-
 # Gantt code from Plone : http://svn.plone.org/svn/collective/xm.charting/
+# License : GPL
 import itertools
 import calendar
 import datetime

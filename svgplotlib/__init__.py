@@ -5,7 +5,8 @@ import os
 from os.path import join, abspath, dirname, expandvars
 from collections import namedtuple
 
-from svgplotlib.Config import *
+from svgplotlib.Config import config
+import svgplotlib.Config as Config
 from svgplotlib.freetype import FT2Font
 from svgplotlib.SVG import SVG, tex_parser, tex_fonts
 from svgplotlib.Scale import Scale
@@ -38,9 +39,9 @@ class Base(SVG):
         self.ymajorTicks, self.yminorTicks = None,None
         
         # font
-        self.fontFamily = kwargs.get('fontFamily', 'Bitstream Vera Sans')
-        self.fontStyle = kwargs.get('fontStyle', 'Roman')
-        self.fontSize = kwargs.get('fontSize', 32)
+        self.fontFamily = kwargs.get('fontFamily', Config.DEFAULTFONT)
+        self.fontStyle = kwargs.get('fontStyle', Config.DEFAULTFONTSTYLE)
+        self.fontSize = kwargs.get('fontSize', Config.DEFAULTFONTSIZE)
         
         font = self.font = getFont(family = self.fontFamily, style = self.fontStyle)
         font.set_size(self.fontSize)
@@ -254,16 +255,16 @@ class Font(FT2Font):
     
 _fonts = {}
 
-def getFont(family = DEFAULTFONT, style = DEFAULTSTYLE):
+def getFont(family = Config.DEFAULTFONT, style = Config.DEFAULTFONTSTYLE):
     try:
         variants = _fonts[family]
     except KeyError:
-        variants = _fonts[DEFAULTFONT]
+        variants = _fonts[Config.DEFAULTFONT]
     
     try:
         path = variants[style]
     except KeyError:
-        path = variants[DEFAULTSTYLE]
+        path = variants[Config.DEFAULTFONTSTYLE]
     
     return Font(path)
 

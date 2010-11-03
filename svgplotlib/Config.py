@@ -53,6 +53,12 @@ else:
     DEFAULTTEXFONTS = join(BASE, 'fonts')
     
 if config.has_option('fonts', 'style'):
-    DEFAULTSTYLE = config.get('fonts', 'style')
+    DEFAULTFONTSTYLE = config.get('fonts', 'style')
 else:
-    DEFAULTSTYLE = 'Roman'
+    DEFAULTFONTSTYLE = 'Roman'
+
+if config.has_option('fonts', 'size'):
+    DEFAULTFONTSIZE = config.getint('fonts', 'size')
+else:
+    DEFAULTFONTSIZE = 'Roman'
+    
