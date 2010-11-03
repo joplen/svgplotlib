@@ -19,8 +19,11 @@ setup(
     version = '0.1',
     description = 'SVG plotting library',
     long_description = '''\
-**svgplotlib** is a python package for creating SVG
+**svgplotlib** is a lightweight python package for creating SVG
 graphs and charts.
+
+The TEX package and freetype extension have been ported from matplotlib.
+Compared to matplotlib the dependency om numpy have been removed.
 
 **Highlights**
 
@@ -29,11 +32,9 @@ graphs and charts.
  * Gantt chart
  * XY plot
  * date plot
- * Support a subset of TEX syntax for text
- * Inlines glyps in SVG file for consistent results.
-
-The authors motivation was to have a lightweight plotting alternative
-to matplotlib for simple plotting needs.
+ * Support a subset of TEX syntax similar to matplotlib.
+ * Inlines font glyps in SVG file for consistent results.
+ * General SVG support.
 ''',
     classifiers = [value for value in classifiers.split("\n") if value],
         
@@ -44,6 +45,7 @@ to matplotlib for simple plotting needs.
     url = 'http://code.google.com/p/svgplotlib/',
     
     platforms = ['any'],
+    requires = ['pyparsing'],
     
     ext_modules=[
         Extension("svgplotlib.freetype",
