@@ -65,6 +65,10 @@ class Bar(Base):
         miny = min(values)
         maxy = max(values)
         
+        if miny == maxy:
+            miny -= 1
+            maxy += 1
+            
         maxNumSteps = kwargs.get('maxNumSteps', 5)
         maxMinSteps = kwargs.get('maxMinSteps', 5)
         
@@ -161,12 +165,12 @@ class Bar(Base):
         
         # plot bars
         barPAD = 4*self.PAD
-        barWidth = (self.plotWidth - 2*(len(values) - 1)*barPAD) / len(values)
+        barWidth = (self.plotWidth - 2*(max(1, len(values) - 1))*barPAD) / len(values)
         
         color = itertools.cycle(colors)
         x = barPAD
         for idx, value in enumerate(values):
-            barHeight = value*self.yscale
+            barHeight = (value - miny)*self.yscale
             y = self.plotHeight - barHeight
             plotArea.Rect(x = x, y = y, width = barWidth, height = barHeight, fill = color.next())
             

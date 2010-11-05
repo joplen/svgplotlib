@@ -348,10 +348,22 @@ def show(svg, width = 500, height = 500):
     app.exec_()
     
 if __name__ == '__main__':
-    svg = SVG(width="150", height="150")
-    g = svg.Group(stroke = "black")
-    svg.Line(x1 = 0, y1 = 0., x2 = 150., y2 = 150., parent = g, stroke='red')
-    svg.TEX(r'$\sum_{i=0}^\infty x_i$', x = 1, y = 50)
-    #svg.write()
+    import math
     
+    svg = SVG(width="150", height="150")
+    g = svg.Group(stroke = "black", transform="translate(75,75)")
+    
+    delta = 30
+    for angle in range(0,360 + delta,delta):
+        x = 70.*math.sin(math.radians(angle))
+        y = 70.*math.cos(math.radians(angle))
+        g.Line(x1 = 0, y1 = 0, x2 = x, y2 = y)
+    
+    
+    '''
+    svg = SVG(width="100", height="100")
+    svg.TEX(r'$\sum_{i=0}^\infty x_i$', x = 1, y = 50)
+    '''
+    
+    #svg.write()
     show(svg)

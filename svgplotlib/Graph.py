@@ -81,6 +81,10 @@ class Graph(Base):
         minx = min(self.xdata)
         maxx = max(self.xdata)
         
+        if minx == maxx:
+            minx -= 1
+            maxx += 1
+            
         x1, x2 = self.buildTicks(minx, maxx, maxNumSteps = maxNumSteps, maxMinSteps = maxMinSteps)
         self.xmajorTicks, self.xminorTicks = x1, x2
         
@@ -88,6 +92,10 @@ class Graph(Base):
         miny = min(self.ydata)
         maxy = max(self.ydata)
         
+        if miny == maxy:
+            miny -= 1
+            maxy += 1
+            
         y1, y2 = self.buildTicks(miny, maxy, maxNumSteps = maxNumSteps, maxMinSteps = maxMinSteps)
         self.ymajorTicks, self.yminorTicks = y1, y2
         
