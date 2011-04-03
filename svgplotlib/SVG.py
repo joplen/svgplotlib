@@ -40,7 +40,6 @@ def CloneElement(elem):
     return ret
 
 if sys.version[0] == '2' and int(sys.version[2]) < 7:
-    print 'OK'
     class SVGBase:
         '''
         Wrapper class for etree.Element
