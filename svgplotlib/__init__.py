@@ -82,13 +82,13 @@ class Base(SVG):
         
         if not self.ymajorTicks is None:
             for y in self.ymajorTicks[1:-1]:
-                ypos = height - y*yscale
+                ypos = height - (y - self.miny)*yscale
                 add('M %g,%g' % (0 + self.TICK, ypos))
                 add('L %g,%g' % (width - self.TICK, ypos))
         
         if not self.xmajorTicks is None:
             for x in self.xmajorTicks[1:-1]:
-                xpos = x*self.xscale
+                xpos = (x - self.minx)*self.xscale
                 add('M %g,%g' % (xpos, 0 + self.TICK))
                 add('L %g,%g' % (xpos, height - self.TICK))
         
@@ -269,7 +269,13 @@ def getFont(family = Config.DEFAULTFONT, style = Config.DEFAULTFONTSTYLE):
     return Font(path)
 
 # load fonts into dict
-for fontpath in config.get('fonts', 'fontpaths').split(';'):
+if config.has_option('fonts', 'fontpaths'):
+    fontpaths = config.get('fonts', 'fontpaths').split(';')
+else:
+    defaults = config.defaults() 
+    fontpaths = defaults['defaultfonts'], defaults['sysfonts']
+    
+for fontpath in fontpaths:
     if not os.path.exists(fontpath):
                 continue
     

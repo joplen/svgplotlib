@@ -457,8 +457,7 @@ class Parser:
     def char_over_chars(self, s, loc, toks):
         sym = toks[0]
         state = self.get_state()
-        thickness = state.font_output.get_underline_thickness(
-            state.font, state.fontsize, state.dpi)
+        thickness = state.font_output.get_underline_thickness(state.fontsize, state.dpi)
 
         under_desc, over_desc, space = \
             self._char_over_chars.get(sym, (None, None, 0.0))
@@ -516,8 +515,7 @@ class Parser:
     def accent(self, s, loc, toks):
         assert(len(toks)==1)
         state = self.get_state()
-        thickness = state.font_output.get_underline_thickness(
-            state.font, state.fontsize, state.dpi)
+        thickness = state.font_output.get_underline_thickness(state.fontsize, state.dpi)
         if len(toks[0]) != 2:
             raise ParseFatalException("Error parsing accent")
         accent, sym = toks[0]

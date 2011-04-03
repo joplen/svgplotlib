@@ -1,5 +1,8 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+import sys
+import os
+
 from distutils.core import setup
 from distutils.extension import Extension
 from Cython.Distutils import build_ext
@@ -14,9 +17,13 @@ Programming Language :: Python
 Topic :: Multimedia :: Graphics
 '''
 
+sys.argv.append('build_ext')
+#sys.argv.extend(['sdist','--formats=gztar,zip'])
+#sys.argv.append('bdist_wininst')
+
 setup(
     name = 'svgplotlib',
-    version = '0.1',
+    version = '0.2',
     description = 'SVG plotting library',
     long_description = '''\
 **svgplotlib** is a lightweight python package for creating SVG

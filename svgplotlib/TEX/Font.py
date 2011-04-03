@@ -139,10 +139,14 @@ class BakomaFonts:
                 self.fontMap[name] = Font(path)
     
     def get_glyph(self, fontname, sym):
+        num = 0
+        slanted = False
         symbolname = None
         
         if fontname in fontAlias:
             fontname = fontAlias[fontname]
+        
+        font = self.fontMap[fontname]
         
         if fontname in self.fontMap and sym in latex_to_bakoma:
             basename, num = latex_to_bakoma[sym]
@@ -155,8 +159,6 @@ class BakomaFonts:
         
         elif len(sym) == 1:
             slanted = (fontname == "it")
-            
-            font = self.fontMap[fontname]
             
             num = ord(sym)
             if num in font.charmap:

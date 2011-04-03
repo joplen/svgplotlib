@@ -39,7 +39,55 @@ def CloneElement(elem):
         
     return ret
 
-class SVGElement(etree.Element):
+if sys.version[0] == '2' and int(sys.version[2]) < 7:
+    print 'OK'
+    class SVGBase:
+        '''
+        Wrapper class for etree.Element
+        as in Python 2.6 and earlier etree.Element
+        is a factor function and not a class.
+        '''
+        def __init__(self, name, **kwargs):
+            self.element = element = etree.Element(name, **kwargs)
+
+            self.__len__        = element.__len__
+            self.__delitem__    = element.__delitem__
+            self.__getitem__    = element.__getitem__
+            self.__setitem__    = element.__setitem__
+
+            self.clear          = element.clear
+            self.get            = element.get
+            self.items          = element.items
+            self.keys           = element.keys
+            self.set            = element.set
+            self.append         = element.append
+            self.find           = element.find
+            self.findall        = element.findall
+            self.findtext       = element.findtext
+            self.insert         = element.insert
+            self.makeelement    = element.makeelement
+            self.remove         = element.remove
+
+        @property
+        def tag(self):
+           return self.element.tag
+
+        @property
+        def text(self):
+           return self.element.text
+
+        @property
+        def tail(self):
+           return self.element.tail
+
+        @property
+        def attrib(self):
+           return self.element.attrib
+
+else:
+   SVGBase = etree.Element
+   
+class SVGElement(SVGBase):
     '''
     Base class for SVG elements
     '''
@@ -48,16 +96,16 @@ class SVGElement(etree.Element):
         attrib = MangleDict(kwargs)
         
         parent = attrib.pop('parent')
-        etree.Element.__init__(self, name, **attrib)
+        SVGBase.__init__(self, name, **attrib)
         parent.append(self)
 
-class Defs(etree.Element):
+class Defs(SVGBase):
     def __init__(self, **kwargs):
         # mangle names
         attrib = MangleDict(kwargs)
         
         parent = attrib.pop('parent')
-        etree.Element.__init__(self, 'defs', **attrib)
+        SVGBase.__init__(self, 'defs', **attrib)
         parent.append(self)
         
         root = attrib.get('root')
@@ -71,7 +119,7 @@ class Defs(etree.Element):
         self.Path = partial(SVGElement, 'path', parent=self, root = root)
         self.Text = partial(SVGElement, 'text', parent=self, root = root)
 
-class TEX(etree.Element):
+class TEX(SVGBase):
     def __init__(self, text, **kwargs):
         root = kwargs.pop('root')
         
@@ -94,14 +142,14 @@ class TEX(etree.Element):
         if scale != 1.:
             transform.append("scale(%g)" % scale)
         
-        etree.Element.__init__(self, 'g', transform = " ".join(transform), **attrib)
+        SVGBase.__init__(self, 'g', transform = " ".join(transform), **attrib)
         parent.append(self)
         
         renderer = SVGBackend(self, root)
         box = tex_parser.parse(text, tex_fonts, 24, 72)
         renderer.render(box)
         
-class EText(etree.Element):
+class EText(SVGBase):
     '''
     Text with glyps embedded in root object
     'defs' section.
@@ -125,7 +173,7 @@ class EText(etree.Element):
         if scale != 1.:
             transform.append("scale(%g)" % scale)
         
-        etree.Element.__init__(self, 'g', transform = " ".join(transform), **attrib)
+        SVGBase.__init__(self, 'g', transform = " ".join(transform), **attrib)
         parent.append(self)
         
         # create glyps
@@ -140,13 +188,13 @@ class EText(etree.Element):
         for name, path in glyps.iteritems():
             defs.Path(id = name, d = path)
             
-class Group(etree.Element):
+class Group(SVGBase):
     def __init__(self, **kwargs):
         # mangle names
         attrib = MangleDict(kwargs)
         
         parent = attrib.pop('parent')
-        etree.Element.__init__(self, 'g', **attrib)
+        SVGBase.__init__(self, 'g', **attrib)
         parent.append(self)
         
         root = attrib.get('root')
@@ -163,7 +211,7 @@ class Group(etree.Element):
         self.EText = partial(EText, parent=self, root = root)
         self.TEX = partial(TEX, parent=self, root = root)
         
-class SVG(etree.Element):
+class SVG(SVGBase):
     '''
     SVG root element
     
@@ -215,7 +263,7 @@ class SVG(etree.Element):
         attrib = MangleDict(kwargs)
         attr.update(attrib)
         
-        etree.Element.__init__(self, 'svg', attr)
+        SVGBase.__init__(self, 'svg', **attr)
         
         self.Defs = partial(Defs, parent=self, root = self)
         self.Use = partial(SVGElement, 'use', parent=self, root = self)
@@ -365,5 +413,5 @@ if __name__ == '__main__':
     svg.TEX(r'$\sum_{i=0}^\infty x_i$', x = 1, y = 50)
     '''
     
-    #svg.write()
-    show(svg)
+    svg.write()
+    #show(svg)
