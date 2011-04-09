@@ -1,14 +1,17 @@
-#!python -u
+#!/usr/bin/python
 # -*- coding: utf-8 -*-
-# Copyright © 2007 by Runar Tenfjord, Tenko.
+# This is code is commercial software.
+# Copyright © 2011 by Runar Tenfjord, Tenko.
 import sys
 from functools import partial
 
 from xml.etree import ElementTree as etree
+from xml.etree import cElementTree
 
 from svgplotlib.TEX.Parser import Parser
 from svgplotlib.TEX.Backends import SVGBackend
 from svgplotlib.TEX.Font import BakomaFonts
+from svgplotlib.SVG.Viewer import show
 
 # TEX parser and fonts
 tex_parser = Parser()
@@ -16,7 +19,7 @@ tex_fonts = BakomaFonts()
 
 # Mangle names
 MangleDict = lambda d: dict((name.replace('_','-'),value) for name,value in d.items())
-    
+
 def CloneElement(elem):
     '''
     Clone root element and ensure attribs are valid text items
@@ -117,7 +120,10 @@ class Defs(SVGBase):
         self.Ellipse = partial(SVGElement, 'ellipse', parent=self, root = root)
         self.Path = partial(SVGElement, 'path', parent=self, root = root)
         self.Text = partial(SVGElement, 'text', parent=self, root = root)
-
+        
+        self.linearGradient = partial(linearGradient, parent=self, root = root)
+        self.radialGradient = partial(radialGradient, parent=self, root = root)
+    
 class TEX(SVGBase):
     def __init__(self, text, **kwargs):
         root = kwargs.pop('root')
@@ -183,10 +189,29 @@ class EText(SVGBase):
             self.append(obj)
         
         # add to new glyps defs section
-        defs = root.glyph_defs
+        defs = root.defs
         for name, path in glyps.iteritems():
             defs.Path(id = name, d = path)
-            
+
+class Gradient(SVGBase):
+    def __init__(self, **kwargs):
+        # mangle names
+        attrib = MangleDict(kwargs)
+        
+        parent = attrib.pop('parent')
+        SVGBase.__init__(self, self.__class__.__name__, **attrib)
+        parent.append(self)
+        
+        root = attrib.get('root')
+        self.Stop = partial(SVGElement, 'stop', parent=self, root = root)
+        
+
+class linearGradient(Gradient):
+    pass
+
+class radialGradient(Gradient):
+    pass
+        
 class Group(SVGBase):
     def __init__(self, **kwargs):
         # mangle names
@@ -280,7 +305,7 @@ class SVG(SVGBase):
         
         # embedded font
         self.glyphs = set()
-        self.glyph_defs = self.Defs()
+        self.defs = self.Defs()
         
     def write(self, file = sys.stdout, header = True, encoding='utf-8', **kwargs):
         '''
@@ -307,110 +332,29 @@ class SVG(SVGBase):
     @property
     def height(self):
         return int(self.get('height', 500))
-        
-def show(svg, width = 500, height = 500):
-    '''
-    Function to show SVG file with Qt
-    '''
-    import io
-    import math
-    
-    from PyQt4 import QtCore, QtGui, QtSvg
-    
-    class SvgWidget(QtSvg.QSvgWidget):
-        def __init__(self, parent):
-            super(SvgWidget, self).__init__(parent)
-            self.setFixedSize(width, height)
-            
-            # white background
-            palette = QtGui.QPalette(self.palette()) 
-            palette.setColor(QtGui.QPalette.Window, QtGui.QColor('white')) 
-            self.setPalette(palette) 
-            self.setAutoFillBackground(True) 
-            
-        def sizeHint(self):
-            return QtCore.QSize(width,height)
-        
-    class MainWindow(QtGui.QMainWindow):
-        def __init__(self):
-            super(MainWindow, self).__init__()
-            self.setMinimumSize(width + 50, height + 50)
-            self.setWindowTitle('show')
-            
-            self.Actions = {
-                'Save' : QtGui.QAction(
-                    "Save", self, shortcut="Ctrl+S",
-                    triggered=self.SaveFile
-                ),
-                'Quit' : QtGui.QAction(
-                    "Quit", self, shortcut="Ctrl+Q",
-                    triggered=QtGui.qApp.closeAllWindows
-                ),
-            }
-            
-            fileMenu = self.menuBar().addMenu("File")
-            fileMenu.addAction(self.Actions['Save'])
-            fileMenu.addSeparator()
-            fileMenu.addAction(self.Actions['Quit'])
-        
-            self.svg = SvgWidget(self)
-            self.setCentralWidget(self.svg)
-            
-            fh = io.BytesIO()
-            svg.write(fh)
-            self.svg.load(QtCore.QByteArray(fh.getvalue()))
-        
-        def SaveFile(self): 
-            dlg = QtGui.QFileDialog.getSaveFileName
-            filename = dlg(self, "Save", '', "svg file ( *.svg ) ;; image file ( *.png )")
-            
-            if filename:
-                filename = unicode(filename)
-                
-                if filename.endswith('.svg'):
-                    fh = open(filename, 'wb')
-                    svg.write(fh)
-                    fh.close()
-                else:
-                    fh = io.BytesIO()
-                    svg.write(fh)
-                    content = QtCore.QByteArray(fh.getvalue())
-                    
-                    image = QtGui.QImage(width, height, QtGui.QImage.Format_ARGB32_Premultiplied)
-                    
-                    painter = QtGui.QPainter(image)
-                    painter.setViewport(0, 0, width, height)
-                    painter.eraseRect(0, 0, width, height)
-                    render = QtSvg.QSvgRenderer(content)
-                    render.render(painter)
-                    painter.end()
-                    
-                    image.save(filename)
-                
-            
-            
-    app = QtGui.QApplication(sys.argv)
-    mw = MainWindow()
-    mw.show()
-    app.exec_()
-    
+
 if __name__ == '__main__':
     import math
     
     svg = SVG(width="150", height="150")
+    '''
     g = svg.Group(stroke = "black", transform="translate(75,75)")
-    
     delta = 30
     for angle in range(0,360 + delta,delta):
         x = 70.*math.sin(math.radians(angle))
         y = 70.*math.cos(math.radians(angle))
         g.Line(x1 = 0, y1 = 0, x2 = x, y2 = y)
-    
-    
-    '''
-    svg = SVG(width="100", height="100")
-    svg.TEX(r'$\sum_{i=0}^\infty x_i$', x = 1, y = 50)
     '''
     
+    #svg.TEX('$\sum_{i=0}^\infty x_i$')
+    
+    grad = svg.defs.linearGradient(id="MyGradient")
+    grad.Stop(offset="5%", stop_color="#F60")
+    grad.Stop(offset="95%", stop_color="#FF6")
+    
+    svg.Rect(fill="url(#MyGradient)", stroke="black", stroke_width=5,
+             x=0, y=0, width=150, height=150)
     svg.write()
-    #show(svg)
+    
+    show(svg)
+    

@@ -268,7 +268,7 @@ cdef class FT2Font:
         if FT_Set_Charmap(self.face, charmap):
             raise FontError('Could not set the charmap')
         
-    cpdef set_text(self, unicode text, double angle  = 0., long flags = FT_LOAD_FORCE_AUTOHINT):
+    cpdef set_text(self, text, double angle  = 0., long flags = FT_LOAD_FORCE_AUTOHINT):
         '''
         Set the text string and angle.
         You must call this before draw_glyphs_to_bitmap

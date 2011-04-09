@@ -7,6 +7,16 @@ from distutils.core import setup
 from distutils.extension import Extension
 from Cython.Distutils import build_ext
 
+if os.name == "posix":
+    GL = "GL"
+    GLU = "GLU32"
+    VG_extra_link_args = []
+    
+elif os.name == "nt":
+    GL = "OPENGL32"
+    GLU = "GLU32"
+    VG_extra_link_args = ["-mwindows","-mno-cygwin"]
+    
 classifiers = '''\
 Environment :: Console
 Development Status :: 4 - Beta
@@ -17,13 +27,13 @@ Programming Language :: Python
 Topic :: Multimedia :: Graphics
 '''
 
-sys.argv.append('build_ext')
+#sys.argv.append('build_ext')
 #sys.argv.extend(['sdist','--formats=gztar,zip'])
-#sys.argv.append('bdist_wininst')
+sys.argv.append('bdist_wininst')
 
 setup(
     name = 'svgplotlib',
-    version = '0.2',
+    version = '0.3',
     description = 'SVG plotting library',
     long_description = '''\
 **svgplotlib** is a lightweight python package for creating SVG
@@ -56,14 +66,23 @@ Compared to matplotlib the dependency om numpy have been removed.
     
     ext_modules=[
         Extension("svgplotlib.freetype",
-                  sources=["svgplotlib/freetype.pyx"],
-                  depends=["svgplotlib/freetypeLib.pxd"],
+                  sources=["svgplotlib/@src/freetype.pyx"],
+                  depends=["svgplotlib/@src/freetypeLib.pxd"],
                   include_dirs = ['svgplotlib','svgplotlib/include'],
                   library_dirs = ['svgplotlib'],
                   libraries=['freetype']),
+                  
+        Extension("svgplotlib.VG",
+                  sources=["svgplotlib/@src/VG/VG.pyx"],
+                  depends = ["svgplotlib/@src/VG/VGLib.pxd"],
+                  include_dirs = ['svgplotlib/@src/VG', 'svgplotlib/@src/shivavg/include'],
+                  extra_objects=["svgplotlib/libshivavg.a"],
+                  libraries=[GL, GLU],
+                  extra_link_args = VG_extra_link_args,
+                )
         ],
         
     cmdclass = {'build_ext': build_ext},
-    packages=['svgplotlib', 'svgplotlib.TEX'],
+    packages=['svgplotlib', 'svgplotlib.TEX', 'svgplotlib.SVG'],
     package_data={'svgplotlib': ['svgplotlib.cfg', 'fonts/*.*']},
 )
