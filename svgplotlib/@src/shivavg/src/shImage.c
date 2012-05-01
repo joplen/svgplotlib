@@ -619,10 +619,6 @@ VG_API_CALL VGImage vgCreateImage(VGImageFormat format,
   VG_RETURN((VGImage)i);
 }
 
-/*----------------------------------------------------------
- * Disposes specified image resource in the current context
- *----------------------------------------------------------*/
- 
 VG_API_CALL void vgDestroyImage(VGImage image)
 {
   SHint index;

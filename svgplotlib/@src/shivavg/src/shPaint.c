@@ -64,12 +64,6 @@ void SHPaint_dtor(SHPaint *p)
     glDeleteTextures(1, &p->texture);
 }
 
-/*---------------------------------------------------
- * The vgCreatePaint function creates a new paint
- * object that is initialized to a set of default 
- * values and returns a VGPaint handle to it.
- *---------------------------------------------------*/
- 
 VG_API_CALL VGPaint vgCreatePaint(void)
 {
   SHPaint *p = NULL;
@@ -86,11 +80,6 @@ VG_API_CALL VGPaint vgCreatePaint(void)
   VG_RETURN((VGPaint)p);
 }
 
-/*---------------------------------------------------
- * Disposes specified paint resource in the current
- * context
- *---------------------------------------------------*/
- 
 VG_API_CALL void vgDestroyPaint(VGPaint paint)
 {
   SHint index;
@@ -107,14 +96,6 @@ VG_API_CALL void vgDestroyPaint(VGPaint paint)
   VG_RETURN(VG_NO_RETVAL);
 }
 
-/*---------------------------------------------------
- * The vgSetPaint function sets Paint definitions on the current context.
- * The paintModes argument is a bitwise OR of values from the enumeration, 
- * VG_FILL_PATH or VG_STROKE_PATH, determining whether the paint object is to 
- * be used for filling ( VG_FILL_PATH ), stroking ( VG_STROKE_PATH), or both 
- * ( VG_FILL_PATH | VG_STROKE_PATH).
- *---------------------------------------------------*/
- 
 VG_API_CALL void vgSetPaint(VGPaint paint, VGbitfield paintModes)
 {
   VG_GETCONTEXT(VG_NO_RETVAL);
@@ -137,11 +118,6 @@ VG_API_CALL void vgSetPaint(VGPaint paint, VGbitfield paintModes)
   VG_RETURN(VG_NO_RETVAL);
 }
 
-/*---------------------------------------------------
- * Replace the image pattern defined for the given
- * paint object
- *---------------------------------------------------*/
- 
 VG_API_CALL void vgPaintPattern(VGPaint paint, VGImage pattern)
 {
   VG_GETCONTEXT(VG_NO_RETVAL);

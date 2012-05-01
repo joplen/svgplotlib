@@ -18,21 +18,20 @@ class Graph(Base):
         
         # graph with multiple lines
         # first call only sets limits and scales
-        graph = Graph(
-            (0,20),(0,50),
-            width = 1000, height = 500,
-            title = 'Simple plot',
-            xlabel = 'X axis',
-            ylabel = 'Y axis',
-            grid = True,
-        )
+        >>> graph = Graph(
+        ...     (0,20),(0,50),
+        ...     width = 1000, height = 500,
+        ...     title = 'Simple plot',
+        ...     xlabel = 'X axis',
+        ...     ylabel = 'Y axis',
+        ...     grid = True,
+        ... )
         
         # plot lines
-        graph.drawLines((0,10,20),(0,50,25), 'red')
-        graph.drawLines((0,10,20),(10,25,50), 'blue', stroke_dasharray="5 5", stroke_width=3)
+        >>> graph.drawLines((0,10,20),(0,50,25), 'red')
+        >>> graph.drawLines((0,10,20),(10,25,50), 'blue', stroke_dasharray="5 5", stroke_width=3)
         
     """
-    
     def __init__(self, *args, **kwargs):
         Base.__init__(self, **kwargs)
         
@@ -286,15 +285,17 @@ class LineGraph(Graph):
     Simple line graph
     
     Example::
-        graph = LineGraph(
-            (0,10,20),(0,50,25),
-            width = 1000, height = 500,
-            title = 'Simple plot',
-            xlabel = 'X axis',
-            ylabel = 'Y axis',
-            grid = True,
-        )
+        >>> graph = LineGraph(
+        ...    (0,10,20),(0,50,25),
+        ...    width = 1000, height = 500,
+        ...    title = 'Simple plot',
+        ...    xlabel = 'X axis',
+        ...    ylabel = 'Y axis',
+        ...    grid = True,
+        ... )
+
     """
+    
     def __init__(self, *args, **kwargs):
         Graph.__init__(self, *args, **kwargs)
         
@@ -308,16 +309,16 @@ class AreaGraph(LineGraph):
     Simple area graph
     
     Example::
-        graph = AreaGraph(
-            (0,10,20),(0,50,25),
-            width = 1000, height = 500,
-            fontFamily = 'Arimo',
-            fontStyle = 'Italic',
-            title = r'Simple plot',
-            xlabel = 'X axis',
-            ylabel = 'Y axis',
-            grid = True,
-        )
+        >>> graph = AreaGraph(
+        ...    (0,10,20),(0,50,25),
+        ...    width = 1000, height = 500,
+        ...    fontFamily = 'Arimo',
+        ...    fontStyle = 'Italic',
+        ...    title = r'Simple plot',
+        ...    xlabel = 'X axis',
+        ...    ylabel = 'Y axis',
+        ...    grid = True,
+        ... )
     """
     def __init__(self, *args, **kwargs):
         LineGraph.__init__(self, *args, **kwargs)
@@ -386,21 +387,19 @@ class DateMonthGraph(DateGraph):
     
     Example::
         # plot dates
-        xdata = (
-            datetime.date(2010,1,5),
-            datetime.date(2010,2,15),
-            datetime.date(2010,4,15),
-            datetime.date(2010,6,15),
-        )
-
-        ydata = (
-            50.,
-            40.5,
-            90.,
-            50.,
-        )
-    
-        graph = DateMonthGraph(xdata,ydata)
+        >>> xdata = (
+        ...    datetime.date(2010,1,5),
+        ...    datetime.date(2010,2,15),
+        ...    datetime.date(2010,4,15),
+        ...    datetime.date(2010,6,15),
+        ... )
+        >>> ydata = (
+        ...     50.,
+        ...     40.5,
+        ...     90.,
+        ...     50.,
+        ... )
+        >>> graph = DateMonthGraph(xdata,ydata)
     """
     def __init__(self, *args, **kwargs):
         DateGraph.__init__(self, *args, **kwargs)
@@ -412,46 +411,6 @@ class DateMonthGraph(DateGraph):
 if __name__ == '__main__':
     from svgplotlib.SVG import show
     
-    '''
-    graph = LineGraph(
-        (0,10,20),(0,50,25),
-        width = 1000, height = 500,
-        title = 'Simple plot',
-        xlabel = 'X axis',
-        ylabel = 'Y axis',
-        grid = True,
-    )
-    '''
-    
-    '''
-    graph = AreaGraph(
-        (0,10,20),(0,50,25),
-        width = 1000, height = 500,
-        fontFamily = 'Arimo',
-        fontStyle = 'Italic',
-        title = r'Simple plot',
-        xlabel = 'X axis',
-        ylabel = 'Y axis',
-        grid = True,
-    )
-    '''
-    
-    '''
-    # graph with multiple lines
-    # first call only sets limits and scales
-    graph = Graph(
-        (0,20),(0,50),
-        width = 1000, height = 500,
-        title = 'Simple plot',
-        xlabel = 'X axis',
-        ylabel = 'Y axis',
-        grid = True,
-    )
-    
-    # plot lines
-    graph.drawLines((0,10,20),(0,50,25), 'red')
-    graph.drawLines((0,10,20),(10,25,50), 'blue', stroke_dasharray="5 5", stroke_width=3)
-    '''
     
     # plot dates
     xdata = (

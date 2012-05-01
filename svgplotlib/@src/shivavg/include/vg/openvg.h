@@ -406,7 +406,15 @@ typedef enum {
 
 /* Function Prototypes */
 
-#define VG_API_CALL extern
+#if defined(_WIN32) || defined(__VC32__)
+#	if defined(VG_API_EXPORT)
+#		define VG_API_CALL __declspec(dllexport)
+#	else
+#		define VG_API_CALL __declspec(dllimport)
+#	endif
+#else
+#	define VG_API_CALL extern
+#endif
 
 #if defined (__cplusplus)
 extern "C" {

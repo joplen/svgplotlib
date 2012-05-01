@@ -28,6 +28,7 @@
 #endif
 
 #include <stdlib.h>
+#include <stdint.h>
 #include <assert.h>
 #include <math.h>
 #include <float.h>
@@ -141,7 +142,7 @@ SHfloat getMaxFloat();
 
 /* Implementation limits */
 
-#define SH_MAX_SCISSOR_RECTS             16384
+#define SH_MAX_SCISSOR_RECTS             VG_MAXINT
 #define SH_MAX_DASH_COUNT                VG_MAXINT
 #define SH_MAX_IMAGE_WIDTH               VG_MAXINT
 #define SH_MAX_IMAGE_HEIGHT              VG_MAXINT

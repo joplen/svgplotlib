@@ -169,7 +169,7 @@ class SVGBackend:
             self.seen.add(defid)
         
             path = info.font.SVGGlyph(ord(thetext), info.fontsize)
-            self.root.glyph_defs.Path(id = defid, d = path)
+            self.root.Path(id = defid, d = path)
         
     def render_rect_filled(self, x1, y1, x2, y2):
         """

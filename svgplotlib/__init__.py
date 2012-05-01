@@ -31,7 +31,9 @@ class Base(SVG):
     )
                     
     def __init__(self, *args, **kwargs):
-        SVG.__init__(self)
+        super( Base , self ).__init__()
+        
+        #SVG.__init__(self)
         
         self.xscale, self.yscale = 1.,1.
         

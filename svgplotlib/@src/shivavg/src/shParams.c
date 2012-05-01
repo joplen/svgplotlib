@@ -179,7 +179,7 @@ static SHint shValidInputFloat2Int(VGfloat f)
  * integers and returns the value at given index
  *---------------------------------------------------*/
 
-SHint shParamToInt(const void *values, SHint floats, SHint index)
+static SHint shParamToInt(const void *values, SHint floats, SHint index)
 {
   if (floats)
     return shValidInputFloat2Int(((const VGfloat*)values)[index]);
@@ -192,7 +192,7 @@ SHint shParamToInt(const void *values, SHint floats, SHint index)
  * floats and returns the value at given index
  *---------------------------------------------------*/
 
-VGfloat shParamToFloat(const void *values, SHint floats, SHint index)
+static VGfloat shParamToFloat(const void *values, SHint floats, SHint index)
 {
   if (floats)
     return shValidInputFloat(((const VGfloat*)values)[index]);
@@ -205,7 +205,7 @@ VGfloat shParamToFloat(const void *values, SHint floats, SHint index)
  * integers and sets the value at given index
  *---------------------------------------------------*/
 
-void shIntToParam(SHint i, SHint count, void *output, SHint floats, SHint index)
+static void shIntToParam(SHint i, SHint count, void *output, SHint floats, SHint index)
 {
   if (index >= count)
     return;
@@ -220,7 +220,7 @@ void shIntToParam(SHint i, SHint count, void *output, SHint floats, SHint index)
  * floats and sets the value at given index
  *----------------------------------------------------*/
 
-void shFloatToParam(SHfloat f, SHint count, void *output, SHint floats, SHint index)
+static void shFloatToParam(SHfloat f, SHint count, void *output, SHint floats, SHint index)
 {
   if (index >= count)
     return;
@@ -340,10 +340,6 @@ static void shSet(VGContext *context, VGParamType type, SHint count,
   case VG_SCISSORING:
     SH_RETURN_ERR_IF(count!=1, VG_ILLEGAL_ARGUMENT_ERROR, SH_NO_RETVAL);
     context->scissoring = bvalue;
-    if (bvalue)
-      shEnableScissoring(context);
-    else
-      shDisableScissoring(context);
     break;
     
   case VG_STROKE_LINE_WIDTH:
@@ -393,7 +389,15 @@ static void shSet(VGContext *context, VGParamType type, SHint count,
     
     /* TODO: limit by the VG_MAX_SCISSOR_RECTS value */
     SH_RETURN_ERR_IF(count % 4, VG_ILLEGAL_ARGUMENT_ERROR, SH_NO_RETVAL);
-    shBuildScissorContext(context, count, values, floats);
+    shRectArrayClear(&context->scissor);
+    for (i=0; i<count; i+=4) {
+      SHRectangle r;
+      r.x = shParamToFloat(values, floats, i+0);
+      r.y = shParamToFloat(values, floats, i+1);
+      r.w = shParamToFloat(values, floats, i+2);
+      r.h = shParamToFloat(values, floats, i+3);
+      shRectArrayPushBackP(&context->scissor, &r);
+    }
     
     break;
     
@@ -419,7 +423,7 @@ static void shSet(VGContext *context, VGParamType type, SHint count,
 }
 
 /*--------------------------------------------------
- * Sets a parameter of a single float value
+ * Sets a parameter of a single integer value
  *--------------------------------------------------*/
 
 VG_API_CALL void vgSetf (VGParamType type, VGfloat value)
@@ -437,7 +441,7 @@ VG_API_CALL void vgSetf (VGParamType type, VGfloat value)
 }
 
 /*--------------------------------------------------
- * Sets a parameter of a single integer value
+ * Sets a parameter of a single float value
  *--------------------------------------------------*/
 
 VG_API_CALL void vgSeti (VGParamType type, VGint value)
@@ -619,8 +623,17 @@ static void shGet(VGContext *context, VGParamType type, SHint count, void *value
     
     break;
   case VG_SCISSOR_RECTS:
-    SH_RETURN_ERR_IF(shCopyOutScissorParams(context, count, values, floats),
+    
+    SH_RETURN_ERR_IF(count > context->scissor.size * 4,
                      VG_ILLEGAL_ARGUMENT_ERROR, SH_NO_RETVAL);
+    
+    for (i=0; i<context->scissor.size; ++i) {
+      shIntToParam((SHint)context->scissor.items[i].x, count, values, floats, i*4+0);
+      shIntToParam((SHint)context->scissor.items[i].y, count, values, floats, i*4+1);
+      shIntToParam((SHint)context->scissor.items[i].w, count, values, floats, i*4+2);
+      shIntToParam((SHint)context->scissor.items[i].h, count, values, floats, i*4+3);
+    }
+    
     break;
     
   case VG_MAX_SCISSOR_RECTS:
