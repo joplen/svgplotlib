@@ -33,7 +33,7 @@ class Style(Lexer):
         if not text:
             return {}
             
-        next = self.lex(text + ';').__next__
+        next = self.lex(text + ';').next
         styles = {}
         
         while True:
@@ -59,4 +59,4 @@ class Style(Lexer):
 parseStyle = Style()
 
 if __name__ == '__main__':
-    print(parseStyle.parse("fill:white;stroke:black;stroke-width:0.5"))
+    print parseStyle.parse("fill:white;stroke:black;stroke-width:0.5")

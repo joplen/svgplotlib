@@ -11,7 +11,7 @@ if os.path.exists('build'):
     
 for filename in ('FLTK/FLTK.cpp', 'FLTK.pyd', 'FLTK.so'):
     if os.path.exists(filename):
-        print(("remove '%s' file" % filename))
+        print("remove '%s' file" % filename)
         os.remove(filename) 
 
 print('')

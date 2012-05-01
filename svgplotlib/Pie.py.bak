@@ -56,7 +56,7 @@ class Pie(Base):
         dy = self.PAD
         dx = self.PAD
         
-        title = str(kwargs.get('title', ''))
+        title = unicode(kwargs.get('title', ''))
         titleSize = None
         if title:
             titleSize = self.textSize(title)
@@ -108,7 +108,7 @@ class Pie(Base):
             delta = 360.*(value/total)
             r = .5*SIZE
             plotArea.Path(d = path_data(.5*SIZE, .5*SIZE, r, angle, angle + delta),
-                          fill = next(color), stroke = 'white',
+                          fill = color.next(), stroke = 'white',
                           stroke_width = 2, stroke_linejoin='round')
             
             # find center point for text
@@ -116,7 +116,7 @@ class Pie(Base):
             dx = .5*r*math.cos(cangle)
             dy = .5*r*math.sin(cangle)
             
-            size = self.textSize(str(label))
+            size = self.textSize(unicode(label))
             
             xpos = .5*SIZE + dx - .5*size.width
             ypos = .5*SIZE + dy + .5*size.height - .5*size.descent

@@ -1,0 +1,164 @@
+--- fltk-cython-bindings/src/setup_cleanup.py	(original)
++++ fltk-cython-bindings/src/setup_cleanup.py	(refactored)
+@@ -11,7 +11,7 @@
+     
+ for filename in ('FLTK/FLTK.cpp', 'FLTK.pyd', 'FLTK.so'):
+     if os.path.exists(filename):
+-        print("remove '%s' file" % filename)
++        print(("remove '%s' file" % filename))
+         os.remove(filename) 
+ 
+ print('')
+--- fltk-cython-bindings/src/setup_fltk_build.py	(original)
++++ fltk-cython-bindings/src/setup_fltk_build.py	(refactored)
+@@ -37,7 +37,7 @@
+       cmdclass = {'build_ext': build_ext}
+     )
+ except:
+-    print('Traceback\n:%s\n' % str(sys.exc_info()[-2]))
++    print(('Traceback\n:%s\n' % str(sys.exc_info()[-2])))
+ else:
+     print('\n')
+ 
+--- fltk-cython-bindings/tests/ask.py	(original)
++++ fltk-cython-bindings/tests/ask.py	(refactored)
+@@ -4,6 +4,6 @@
+ import FLTK as Fl
+ 
+ Fl.alert('Dialog tests!')
+-print Fl.choice('Select button', 'Yes', 'No')
+-print Fl.input('Enter text', 'text line')
++print(Fl.choice('Select button', 'Yes', 'No'))
++print(Fl.input('Enter text', 'text line'))
+ Fl.message('Welcome again!')
+--- fltk-cython-bindings/tests/button.py	(original)
++++ fltk-cython-bindings/tests/button.py	(refactored)
+@@ -4,7 +4,7 @@
+ import FLTK as Fl
+ 
+ def beepcb(widget, data):
+-    print 'beep'
++    print('beep')
+ 
+ def exitcb(widget, data):
+     Fl.exit()
+--- fltk-cython-bindings/tests/date.py	(original)
++++ fltk-cython-bindings/tests/date.py	(refactored)
+@@ -26,7 +26,7 @@
+         self.__user_data = data
+     
+     def __cb(self, widget, data):
+-        print 'cb2 ', widget.value()
++        print('cb2 ', widget.value())
+         value = widget.value()
+         
+         def isLeapYear(year):
+@@ -63,9 +63,9 @@
+                 error = True
+                 
+         if error:
+-            print 'error ', self.color()
++            print('error ', self.color())
+             self.color(Fl.RED)
+-            print 'error ', self.color()
++            print('error ', self.color())
+             self.redraw()
+             return
+             
+@@ -77,7 +77,7 @@
+             self.__user_cb(self, self.__user_data)
+     
+ def cb(widget, data):
+-    print 'CB: ' #, widget.label(), widget.value()
++    print('CB: ') #, widget.label(), widget.value()
+     
+ window = Fl.Window(400,420)
+ widget = Date_Input(10,10, 100, 30)
+--- fltk-cython-bindings/tests/filechooser.py	(original)
++++ fltk-cython-bindings/tests/filechooser.py	(refactored)
+@@ -11,11 +11,11 @@
+                         Apps\t*.{app}\n''')
+     ret = native.show()
+     if ret == -1:
+-        print 'Error ', native.errmsg()
++        print('Error ', native.errmsg())
+     elif ret == 1:
+-        print 'Cancel'
++        print('Cancel')
+     else:
+-        print native.filename()
++        print(native.filename())
+                 
+ def exitcb(widget, data):
+     Fl.exit()
+--- fltk-cython-bindings/tests/html.py	(original)
++++ fltk-cython-bindings/tests/html.py	(refactored)
+@@ -8,7 +8,7 @@
+ image1 = Fl.PNG_Image('sudoku-128.png')
+ 
+ def cb(self, data, name):
+-    print 'name = ', name
++    print('name = ', name)
+     return image1
+     
+ widget = Fl.Help_View(10,10,380,400)
+--- fltk-cython-bindings/tests/input.py	(original)
++++ fltk-cython-bindings/tests/input.py	(refactored)
+@@ -4,7 +4,7 @@
+ import FLTK as Fl
+ 
+ def cb(widget, data):
+-    print 'CB: ', widget.get_label(), widget.get_value()
++    print('CB: ', widget.get_label(), widget.get_value())
+     
+ window = Fl.Window(400,420)
+ input = []
+--- fltk-cython-bindings/tests/menubar.py	(original)
++++ fltk-cython-bindings/tests/menubar.py	(refactored)
+@@ -4,8 +4,8 @@
+ import FLTK as Fl
+ 
+ def cb(widget, data):
+-    print 'called'
+-    print widget, data
++    print('called')
++    print(widget, data)
+     
+ WIDTH  = 700
+ 
+--- fltk-cython-bindings/tests/textview.py	(original)
++++ fltk-cython-bindings/tests/textview.py	(refactored)
+@@ -6,9 +6,9 @@
+ window = Fl.Window(400,420)
+ 
+ buffer = Fl.Text_Buffer()
+-print buffer.length()
++print(buffer.length())
+ buffer.append('testing')
+-print buffer.length()
++print(buffer.length())
+ 
+ widget = Fl.Text_Display(10,10,380,400)
+ widget.buffer(buffer)
+--- fltk-cython-bindings/tests/tree.py	(original)
++++ fltk-cython-bindings/tests/tree.py	(refactored)
+@@ -4,7 +4,7 @@
+ import FLTK as Fl
+ 
+ def tree_cb(widget, data):
+-    print 'cb', widget.callback_reason()
++    print('cb', widget.callback_reason())
+     
+ window = Fl.Double_Window(320,365, 'Tree')
+ 
+--- fltk-cython-bindings/tests/widget.py	(original)
++++ fltk-cython-bindings/tests/widget.py	(refactored)
+@@ -21,7 +21,7 @@
+         Fl.end_line()
+     
+     def handle(self, event):
+-        print 'event ', event
++        print('event ', event)
+         return 0
+         
+ window = Fl.Window(400,420)

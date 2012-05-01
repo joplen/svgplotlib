@@ -76,8 +76,8 @@ class Bar(Base):
         self.ymajorTicks, self.yminorTicks = y1, y2
         
         # calculate scale
-        miny = self.miny = min(min(y1), min(y2 or (sys.maxsize,)))
-        maxy = self.maxy = max(max(y1), max(y2 or (-sys.maxsize,)))
+        miny = self.miny = min(min(y1), min(y2 or (sys.maxint,)))
+        maxy = self.maxy = max(max(y1), max(y2 or (-sys.maxint,)))
         
         self.yscale = self.plotHeight/(maxy - miny)
         
@@ -90,7 +90,7 @@ class Bar(Base):
         # find height
         dy = .5*self.fontSize
         
-        title = str(kwargs.get('title', ''))
+        title = unicode(kwargs.get('title', ''))
         titleSize = None
         if title:
             titleSize = self.textSize(title)
@@ -100,7 +100,7 @@ class Bar(Base):
         h += self.plotHeight    # Plot area
         h += delta              # xaxis labels
         
-        xlabel = str(kwargs.get('xlabel', ''))
+        xlabel = unicode(kwargs.get('xlabel', ''))
         xlabelSize = None
         if xlabel:
             xlabelSize = self.textSize(xlabel)
@@ -110,7 +110,7 @@ class Bar(Base):
         w = 0
         dx = 0
         
-        ylabel = str(kwargs.get('ylabel', ''))
+        ylabel = unicode(kwargs.get('ylabel', ''))
         ylabelSize = None
         if ylabel:
             ylabelSize = self.textSize(ylabel)
@@ -119,7 +119,7 @@ class Bar(Base):
         # yaxis labels
         maxSize = 0
         for y in self.ymajorTicks:
-            s = "%g" % y
+            s = u"%g" % y
             size = self.textSize(s)
             maxSize = max(maxSize, size.width)
         dx += maxSize + self.PAD
@@ -172,9 +172,9 @@ class Bar(Base):
         for idx, value in enumerate(values):
             barHeight = (value - miny)*self.yscale
             y = self.plotHeight - barHeight
-            plotArea.Rect(x = x, y = y, width = barWidth, height = barHeight, fill = next(color))
+            plotArea.Rect(x = x, y = y, width = barWidth, height = barHeight, fill = color.next())
             
-            s = str(labels[idx])
+            s = unicode(labels[idx])
             size = self.textSize(s)
             
             xpos = x + .5*barWidth - .5*size.width

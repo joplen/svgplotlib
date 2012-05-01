@@ -101,7 +101,7 @@ class Base(SVG):
         xscale = self.xscale
         
         if fmt is None:
-            fmt = lambda x: "%g" % x
+            fmt = lambda x: u"%g" % x
             
         sc = -1 if flip else 1
         path_data = []
@@ -115,7 +115,7 @@ class Base(SVG):
             
         if text:
             for x in self.xmajorTicks:
-                s = str(fmt(x))
+                s = unicode(fmt(x))
                 size = self.textSize(s)
                 
                 x = x - self.minx
@@ -143,7 +143,7 @@ class Base(SVG):
         sc = -1 if flip else 1
         
         if fmt is None:
-            fmt = lambda y: "%g" % y
+            fmt = lambda y: u"%g" % y
             
         path_data = []
         add = path_data.append
@@ -156,7 +156,7 @@ class Base(SVG):
             
         if text:
             for y in self.ymajorTicks:
-                s = str(fmt(y))
+                s = unicode(fmt(y))
                 size = self.textSize(s)
                 
                 y = y - self.miny
@@ -293,4 +293,4 @@ for fontpath in fontpaths:
 
 if __name__ == '__main__':
     font = getFont()
-    print(font)
+    print font

@@ -22,10 +22,10 @@ def weekMonday(year, week):
 
 class Duration:
     def __init__(self, name, start, end, text = None, color = None):
-        self.name = str(name)
+        self.name = unicode(name)
         self.start = start
         self.end = end
-        self.text = str(text) if text else None
+        self.text = unicode(text) if text else None
         self.color = color
 
 class Gantt(Base):
@@ -71,13 +71,13 @@ class Gantt(Base):
         
         # create name column
         def draw_names():
-            size = self.textSize('Name')
+            size = self.textSize(u'Name')
             maxwidth = size.width
             maxheight = 0.
             
             textdata = []
             for duration in data:
-                text = str(duration.name)
+                text = unicode(duration.name)
                 dur_size = self.textSize(text)
                 textdata.append((text,dur_size))
                 
@@ -86,7 +86,7 @@ class Gantt(Base):
             x, y = Gantt.PAD, .5*delta
             xpos = x
             ypos = y + .5*size.height - .5*size.descent
-            main.EText(font, 'Name', x = xpos, y = ypos, stroke='none')
+            main.EText(font, u'Name', x = xpos, y = ypos, stroke='none')
             y += delta
             maxheight += delta
             
@@ -114,13 +114,13 @@ class Gantt(Base):
                   
         
         def draw_duration(x):
-            size = self.textSize('Duration')
+            size = self.textSize(u'Duration')
             
             maxwidth = size.width
             textdata = []
             for duration in data:
                 days = (duration.end - duration.start).days
-                text = "%d days" % days
+                text = u"%d days" % days
                 dur_size = self.textSize(text)
                 textdata.append((text,dur_size))
                 
@@ -129,7 +129,7 @@ class Gantt(Base):
             y = .5*delta
             xpos = x + maxwidth + self.PAD - size.width
             ypos = y + .5*size.height - .5*size.descent
-            main.EText(font, 'Duration', x = xpos, y = ypos, stroke='none')
+            main.EText(font, u'Duration', x = xpos, y = ypos, stroke='none')
             
             y += delta
             for text, size in textdata:
@@ -208,11 +208,11 @@ class Gantt(Base):
                 
                 rect_width = ((mend - mstart).days) * day_size
                 
-                s = "%s %d" % (calendar.month_abbr[month], year)
+                s = u"%s %d" % (calendar.month_abbr[month], year)
                 size = self.textSize(s)
                 
                 if size.width > rect_width:
-                    s = "%s %d" % (calendar.month_abbr[month], year)
+                    s = u"%s %d" % (calendar.month_abbr[month], year)
                     size = self.textSize(s)
                     if size.width > rect_width:
                         s = ""
@@ -257,11 +257,11 @@ class Gantt(Base):
                 
                 rect_width = (wend - wstart).days * day_size
                 
-                s = "%d" % week
+                s = u"%d" % week
                 size = self.textSize(s)
                 
                 if size.width > rect_width:
-                    s = ""
+                    s = u""
                 
                 xpos = x + .5*rect_width - .5*size.width
                 ypos = y + .5*size.height - 2.*size.descent
@@ -291,11 +291,11 @@ class Gantt(Base):
                 
                 rect_width = (duration.end - duration.start).days * day_size
                 
-                color = duration.color or next(colors)
+                color = duration.color or colors.next()
                 main.Rect(x = rect_start, y = y, width = rect_width, height = delta, fill = color)
                 
                 if duration.text:
-                    s = str(duration.text)
+                    s = unicode(duration.text)
                     size = self.textSize(s)
                     xpos = rect_start + .5*rect_width - .5*size.width
                     ypos = y + .5*size.height + .5*delta

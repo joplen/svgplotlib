@@ -21,7 +21,7 @@ def readFile(filename):
     """
     GZIPMAGIC = '\037\213'
     
-    if isinstance(filename, str):
+    if isinstance(filename, basestring):
         try:
             fh = open(filename, 'rb')
         except IOError:
@@ -82,7 +82,7 @@ if not Fl is None:
             xmltree = readFile(filename)
             self.renderer = Renderer(xmltree, imageprovider = image_cb)
             
-            if isinstance(filename, str):
+            if isinstance(filename, basestring):
                 name = os.path.split(filename)[-1]
             else:
                 name = 'unamed.svg'

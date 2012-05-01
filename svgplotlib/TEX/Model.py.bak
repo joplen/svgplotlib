@@ -129,7 +129,7 @@ class Char(Node):
         Node.__init__(self)
         self.c = c
         self.font_output = state.font_output
-        assert isinstance(state.font, (str, int))
+        assert isinstance(state.font, (str, unicode, int))
         self.font = state.font
         self.font_class = state.font_class
         self.fontsize = state.fontsize
@@ -504,7 +504,7 @@ class Glue(Node):
     def __init__(self, glue_type, copy=False):
         Node.__init__(self)
         self.glue_subtype   = 'normal'
-        if isinstance(glue_type, str):
+        if isinstance(glue_type, (str, unicode)):
             glue_spec = GlueSpec.factory(glue_type)
         elif isinstance(glue_type, GlueSpec):
             glue_spec = glue_type

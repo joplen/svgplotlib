@@ -28,7 +28,7 @@ class Lexer:
         self.groupnames = groupnames
         
         # assemble regex parts to one regex
-        igroupnames = dict((value,name) for name,value in groupnames.items())
+        igroupnames = dict((value,name) for name,value in groupnames.iteritems())
         
         regex_parts = ('(?P<%s>%s)' % (igroupnames[cls], regs) for cls,regs in lexicon)
         
@@ -155,7 +155,7 @@ def parseLength(length):
         raise SVGParseError("Unknown unit '%s'" % unit)
 
 def parseDashArray(array):
-    return list(map(parseLength, re.split('[ ,]+', array)))
+    return map(parseLength, re.split('[ ,]+', array))
 
 def parseOpacity(value): 
     try:
@@ -169,5 +169,5 @@ def parseOpacity(value):
     return opacity
 
 if __name__ == '__main__':
-    print(parseAngle('3.14253rad'))
-    print(parseLength('10.5cm'))
+    print parseAngle('3.14253rad')
+    print parseLength('10.5cm')

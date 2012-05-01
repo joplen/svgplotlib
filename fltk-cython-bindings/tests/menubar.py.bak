@@ -4,8 +4,8 @@ sys.path.append('..')
 import FLTK as Fl
 
 def cb(widget, data):
-    print('called')
-    print(widget, data)
+    print 'called'
+    print widget, data
     
 WIDTH  = 700
 

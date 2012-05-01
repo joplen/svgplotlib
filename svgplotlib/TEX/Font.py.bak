@@ -16,9 +16,9 @@ def unichr_safe(index):
     and the requested character is outside the BMP.
     """
     try:
-        return chr(index)
+        return unichr(index)
     except ValueError:
-        return chr(0xFFFD)
+        return unichr(0xFFFD)
         
 class Font(ft.FT2Font):
     def __init__(self, fname):
@@ -38,7 +38,7 @@ class Font(ft.FT2Font):
     def glyphmap(self):
         if self._glyphmap is None:
             charmap = self.charmap
-            self._glyphmap = dict(data[::-1] for data in charmap.items())
+            self._glyphmap = dict(data[::-1] for data in charmap.iteritems())
         
         return self._glyphmap
     
@@ -541,8 +541,8 @@ latex_to_bakoma = {
 
 if __name__ == '__main__':
     fonts = BakomaFonts()
-    for name, font in fonts.fontMap.items():
-        print(name, font)
+    for name, font in fonts.fontMap.iteritems():
+        print name, font
     
     '''
     info = fonts.get_info('cmex10', 'class', r'\oint', 12, 72.)

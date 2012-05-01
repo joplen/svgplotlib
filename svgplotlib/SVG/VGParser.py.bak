@@ -261,7 +261,7 @@ class Parser:
                     # find local style
                     style = parseStyle.parse(child.get("style") or '')
                     style_color = None
-                    for name, value in style.items():
+                    for name, value in style.iteritems():
                         if name == "stop-color":
                             style_color = value
                         elif name == "stop-opacity":
@@ -459,7 +459,7 @@ class Parser:
             if len(points) == 0:
                 self.skip.add(node)
                 return
-            points = list(map(parseLength, re.split('[ ,]+', points)))
+            points = map(parseLength, re.split('[ ,]+', points))
             
             nodedata = node.tail = {}
             nodedata['args'] = points
@@ -519,7 +519,7 @@ class Parser:
                 if op == "A" or op == "a":
                     rel = op == "a"
                     
-                    for i in range(len(args)//7):
+                    for i in xrange(len(args)//7):
                         largearc, sweeparc = args[i*7 + 3], args[i*7 + 4]
                         
                         if largearc and sweeparc:
@@ -557,7 +557,7 @@ class Parser:
                         args = args[2:]
                         cmd = vg.LINE_TO | (cmd & vg.RELATIVE)
                     
-                    for i in range(len(args)/count):
+                    for i in xrange(len(args)/count):
                         segments.append(cmd)
                         data.extend(args[i*count:(i+1)*count])
                     
@@ -611,10 +611,10 @@ class Parser:
         style = parseStyle.parse(node.get('style') or '')
         
         # update with inline style
-        inames = STYLE_NAMES.intersection(list(node.keys()))
+        inames = STYLE_NAMES.intersection(node.keys())
         style.update({(name, node.get(name)) for name in inames})
             
-        for name, value in style.items():
+        for name, value in style.iteritems():
             if name == 'fill':
                 if value == "none":
                     nodestyle['hasFill'] = False

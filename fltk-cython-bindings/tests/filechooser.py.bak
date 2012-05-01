@@ -11,11 +11,11 @@ def filecb(widget, data):
                         Apps\t*.{app}\n''')
     ret = native.show()
     if ret == -1:
-        print('Error ', native.errmsg())
+        print 'Error ', native.errmsg()
     elif ret == 1:
-        print('Cancel')
+        print 'Cancel'
     else:
-        print(native.filename())
+        print native.filename()
                 
 def exitcb(widget, data):
     Fl.exit()

@@ -54,7 +54,7 @@ class Graph(Base):
         # get data
         if len(args) == 1:
             self.ydata = args[0]
-            self.xdata = list(range(len(self.ydata)))
+            self.xdata = range(len(self.ydata))
             
         elif len(args) == 2:
             self.xdata, self.ydata = args
@@ -99,10 +99,10 @@ class Graph(Base):
         self.ymajorTicks, self.yminorTicks = y1, y2
         
         # calculate scale
-        self.minx = min(min(x1), min(x2 or (sys.maxsize,)))
-        self.maxx = max(max(x1), max(x2 or (-sys.maxsize,)))
-        self.miny = min(min(y1), min(y2 or (sys.maxsize,)))
-        self.maxy = max(max(y1), max(y2 or (-sys.maxsize,)))
+        self.minx = min(min(x1), min(x2 or (sys.maxint,)))
+        self.maxx = max(max(x1), max(x2 or (-sys.maxint,)))
+        self.miny = min(min(y1), min(y2 or (sys.maxint,)))
+        self.maxy = max(max(y1), max(y2 or (-sys.maxint,)))
         
         self.xscale = self.plotWidth/(self.maxx - self.minx)
         self.yscale = self.plotHeight/(self.maxy - self.miny)
@@ -117,7 +117,7 @@ class Graph(Base):
         h = 0
         dy = .5*self.fontSize
         
-        title = str(kwargs.get('title', ''))
+        title = unicode(kwargs.get('title', ''))
         titleSize = None
         if title:
             if isTEX(title):
@@ -132,7 +132,7 @@ class Graph(Base):
         h += .5*self.fontSize   # yaxis labels
         h += delta              # xaxis labels
         
-        xlabel = str(kwargs.get('xlabel', ''))
+        xlabel = unicode(kwargs.get('xlabel', ''))
         xlabelSize = None
         if xlabel:
             if isTEX(xlabel):
@@ -146,7 +146,7 @@ class Graph(Base):
         w = 0
         dx = 0
         
-        ylabel = str(kwargs.get('ylabel', ''))
+        ylabel = unicode(kwargs.get('ylabel', ''))
         ylabelSize = None
         if ylabel:
             if isTEX(ylabel):
@@ -159,7 +159,7 @@ class Graph(Base):
         # yaxis labels
         maxSize = 0
         for y in self.ymajorTicks:
-            s = "%g" % y
+            s = u"%g" % y
             size = self.textSize(s)
             maxSize = max(maxSize, size.width)
         dx += maxSize + self.PAD

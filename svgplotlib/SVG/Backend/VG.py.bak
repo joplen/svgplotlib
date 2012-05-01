@@ -368,7 +368,7 @@ class Renderer(Parser):
             return
             
         saved = {}
-        for name, value in style.items():
+        for name, value in style.iteritems():
             if name == 'hasFill':
                 if save:
                     saved[name] = self.hasFill

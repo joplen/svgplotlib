@@ -4,7 +4,7 @@ sys.path.append('..')
 import FLTK as Fl
 
 def tree_cb(widget, data):
-    print('cb', widget.callback_reason())
+    print 'cb', widget.callback_reason()
     
 window = Fl.Double_Window(320,365, 'Tree')
 

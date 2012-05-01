@@ -42,7 +42,7 @@ class Transform(Lexer):
         Parse a string of SVG transform data.
         """
         assertion = self.assertion
-        next = self.lex(text).__next__
+        next = self.lex(text).next
         numbers = self.numbers
         string = self.string
         
@@ -136,4 +136,4 @@ class Transform(Lexer):
 parseTransform = Transform()
 
 if __name__ == '__main__':
-    print(tuple(parseTransform.iterparse("scale(1.8) translate(0, -150)")))
+    print tuple(parseTransform.iterparse("scale(1.8) translate(0, -150)"))

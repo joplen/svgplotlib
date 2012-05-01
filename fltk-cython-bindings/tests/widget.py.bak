@@ -21,7 +21,7 @@ class TestWidget(Fl.Widget):
         Fl.end_line()
     
     def handle(self, event):
-        print('event ', event)
+        print 'event ', event
         return 0
         
 window = Fl.Window(400,420)

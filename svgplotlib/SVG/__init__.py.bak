@@ -20,20 +20,20 @@ tex_parser = Parser()
 tex_fonts = BakomaFonts()
 
 # Mangle names
-MangleDict = lambda d: dict((name.replace('_','-'),value) for name,value in list(d.items()))
+MangleDict = lambda d: dict((name.replace('_','-'),value) for name,value in d.items())
 
 def CloneElement(elem):
     '''
     Clone root element and ensure attribs are valid text items
     '''
     attrib = {}
-    for name,value in list(elem.attrib.items()):
+    for name,value in elem.attrib.items():
         if isinstance(value, (tuple,list)):
-            attrib[name] = str(value)[1:-1]
+            attrib[name] = unicode(value)[1:-1]
         elif name == 'root':
             continue
         else:
-            attrib[name] = str(value)
+            attrib[name] = unicode(value)
     
     ret = etree.Element(elem.tag, attrib)
     ret.text = elem.text
@@ -177,7 +177,7 @@ class EText(SVGBase):
         
         # add to new glyps defs section
         defs = root.defs
-        for name, path in glyps.items():
+        for name, path in glyps.iteritems():
             defs.Path(id = name, d = path)
 
 class Gradient(SVGBase):
@@ -380,7 +380,7 @@ def show(svg, width = 500, height = 500):
             filename = dlg(self, "Save", '', "svg file ( *.svg ) ;; image file ( *.png )")
             
             if filename:
-                filename = str(filename)
+                filename = unicode(filename)
                 
                 if filename.endswith('.svg'):
                     fh = open(filename, 'wb')

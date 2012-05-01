@@ -122,7 +122,7 @@ class Parser:
 
         bslash       = Literal('\\')
 
-        accent       = oneOf(list(self._accent_map.keys()) +
+        accent       = oneOf(self._accent_map.keys() +
                              list(self._wide_accents))
 
         function     = oneOf(list(self._function_names))
@@ -147,16 +147,16 @@ class Parser:
                        ) | Error(r"Expected \hspace{n}"))
                      ).setParseAction(self.customspace).setName('customspace')
 
-        unicode_range = "\U00000080-\U0001ffff"
-        symbol       =(Regex(R"([a-zA-Z0-9 +\-*/<>=:,.;!'@()\[\]|%s])|(\\[%%${}\[\]_|])" % unicode_range)
+        unicode_range = u"\U00000080-\U0001ffff"
+        symbol       =(Regex(UR"([a-zA-Z0-9 +\-*/<>=:,.;!'@()\[\]|%s])|(\\[%%${}\[\]_|])" % unicode_range)
                      | (Combine(
                          bslash
-                       + oneOf(list(tex2uni.keys()))
+                       + oneOf(tex2uni.keys())
                        ) + FollowedBy(Regex("[^a-zA-Z]")))
                      ).setParseAction(self.symbol).leaveWhitespace()
 
         c_over_c     =(Suppress(bslash)
-                     + oneOf(list(self._char_over_chars.keys()))
+                     + oneOf(self._char_over_chars.keys())
                      ).setParseAction(self.char_over_chars)
 
         accent       = Group(
@@ -315,7 +315,7 @@ class Parser:
         self._state_stack = [self.State(fonts_object, 'cmr10', 'rm', fontsize, dpi)]
         try:
             self._expression.parseString(s)
-        except ParseException as err:
+        except ParseException, err:
             raise ValueError("\n".join([
                         "",
                         err.line,

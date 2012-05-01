@@ -37,7 +37,7 @@ try:
       cmdclass = {'build_ext': build_ext}
     )
 except:
-    print(('Traceback\n:%s\n' % str(sys.exc_info()[-2])))
+    print('Traceback\n:%s\n' % str(sys.exc_info()[-2]))
 else:
     print('\n')
 
