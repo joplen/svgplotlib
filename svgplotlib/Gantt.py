@@ -34,22 +34,21 @@ class Gantt(Base):
     
     Example::
         
-        items = []
-        items.append(Duration('Item 1', date(2009, 1, 4), date(2009, 8, 10), '90%'))
-        items.append(Duration('Item 2', date(2009, 3, 11), date(2009, 8, 17), '50%'))
-        items.append(Duration('Item 3', date(2009, 4, 18), date(2009, 8, 24), '70%'))
-        items.append(Duration('Item 4', date(2009, 5, 25), date(2009, 8, 31), '10%'))
-        items.append(Duration('Item 4', date(2009, 5, 25), date(2009, 9, 27), '25%'))
-        
-        gantt = Gantt(items)
+        >>> items = []
+        >>> items.append(Duration('Item 1', date(2009, 1, 4), date(2009, 8, 10), '90%'))
+        >>> items.append(Duration('Item 2', date(2009, 3, 11), date(2009, 8, 17), '50%'))
+        >>> items.append(Duration('Item 3', date(2009, 4, 18), date(2009, 8, 24), '70%'))
+        >>> items.append(Duration('Item 4', date(2009, 5, 25), date(2009, 8, 31), '10%'))
+        >>> items.append(Duration('Item 4', date(2009, 5, 25), date(2009, 9, 27), '25%'))
+        >>>  
+        >>> gantt = Gantt(items)
     """
     PAD = 8
     def __init__(self, data, **kwargs):
         # smaller default font
         if not 'fontSize' in kwargs:
             kwargs['fontSize'] = 12
-            
-        Base.__init__(self, **kwargs)
+        super(Gantt, self).__init__(**kwargs)
         
         font = self.font
         fontSize = self.fontSize

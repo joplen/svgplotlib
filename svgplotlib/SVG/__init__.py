@@ -82,7 +82,6 @@ class SVGElement(SVGBase):
         
         parent = attrib.pop('parent')
         super(SVGElement,self).__init__(name, **attrib)
-        #SVGBase.__init__(self, name, **attrib)
         parent.append(self.element)
 
 class Defs(SVGBase):
@@ -92,7 +91,6 @@ class Defs(SVGBase):
         
         parent = attrib.pop('parent')
         super(Defs,self).__init__('defs', **attrib)
-        #SVGBase.__init__(self, 'defs', **attrib)
         parent.append(self.element)
         
         root            = attrib.get('root')
@@ -113,7 +111,7 @@ class TEX(SVGBase):
     def __init__(self, text, **kwargs):
         root = kwargs.pop('root')
         
-        self.Use = partial(SVGElement, 'use', parent=self, root = root)
+        self.Use  = partial(SVGElement, 'use' , parent=self, root = root)
         self.Rect = partial(SVGElement, 'rect', parent=self, root = root)
         
         # mangle names
@@ -133,7 +131,6 @@ class TEX(SVGBase):
             transform.append("scale(%g)" % scale)
         
         super(TEX, self).__init__('g',transform=' '.join(transform), **attrib)
-        #SVGBase.__init__(self, 'g', transform = " ".join(transform), **attrib)
         parent.append(self.element)
         
         renderer = SVGBackend(self, root)
@@ -142,7 +139,7 @@ class TEX(SVGBase):
         
 class EText(SVGBase):
     '''
-    Text with glyps embedded in root object
+    Text with glyphs embedded in root object
     'defs' section.
     '''
     def __init__(self, font, text, **kwargs):
@@ -165,7 +162,6 @@ class EText(SVGBase):
             transform.append("scale(%g)" % scale)
         
         super(EText, self).__init__('g',transform=' '.join(transform), **attrib)
-        #SVGBase.__init__(self, 'g', transform = " ".join(transform), **attrib)
         parent.append(self.element)
         
         # create glyps
@@ -182,12 +178,17 @@ class EText(SVGBase):
 
 class Gradient(SVGBase):
     def __init__(self, **kwargs):
+        """
+        >>> svg = SVG(width="150", height="150")
+        >>> grad = svg.defs.linearGradient(id="MyGradient")
+        >>> s = grad.Stop(offset="5%", stop_color="#F60")
+        >>> s = grad.Stop(offset="95%", stop_color="#FF6")
+        """
         # mangle names
         attrib = MangleDict(kwargs)
         
         parent = attrib.pop('parent')
         super(Gradient,self).__init__( self.__class__.__name__, **attrib )
-        #SVGBase.__init__(self, self.__class__.__name__, **attrib)
         parent.append(self.element)
         
         root = attrib.get('root')
@@ -202,12 +203,22 @@ class radialGradient(Gradient):
         
 class Group(SVGBase):
     def __init__(self, **kwargs):
+        '''
+        >>> import math
+        >>> svg = SVG(width="150", height="150")
+        >>> g = svg.Group(stroke = "black", transform="translate(75,75)")
+        >>> delta = 30
+        >>> for angle in range(0,360 + delta,delta):
+        ...     x = 70.*math.sin(math.radians(angle))
+        ...     y = 70.*math.cos(math.radians(angle))
+        ...     l = g.Line(x1 = 0, y1 = 0, x2 = x, y2 = y)
+        >>> #show(svg)
+        '''
         # mangle names
         attrib = MangleDict(kwargs)
         
         parent = attrib.pop('parent')
         super(Group, self).__init__('g', **attrib)
-        #SVGBase.__init__(self, 'g', **attrib)
         parent.append(self.element)
         
         root = attrib.get('root')
@@ -253,11 +264,15 @@ class SVG(SVGBase):
     All constructors except for EText and TEX are standard SVG elements.
     
     Example::
-        svg = SVG(width=50, height=50)
-        g = svg.Group(stroke = "black")
-        svg.Line(x1 = 0, y1 = 0., x2 = 50., y2 = 50., stroke='red', parent = g)
-        g.Line(x1 = 0, y1 = 50., x2 = 50., y2 = 0.)
-        svg.write('test.svg')
+        >>> svg = SVG(width=50, height=50)
+        >>> g = svg.Group(stroke = "black")
+        >>> l = svg.Line(x1 = 0, y1 = 0., x2 = 50., y2 = 50., stroke='red', parent = g)
+        >>> l = g.Line(x1 = 0, y1 = 50., x2 = 50., y2 = 0.)
+        >>> show(svg)
+        >>> with file('test.svg','w') as out:
+        ...     svg.write(out)
+        >>> import os
+        >>> os.remove('test.svg')
     '''
     HEADER = \
 """<?xml version="1.0" standalone="no"?>
@@ -277,7 +292,6 @@ class SVG(SVGBase):
         attr.update(attrib)
         
         super(SVG, self).__init__('svg', **attr)
-        #SVGBase.__init__(self, 'svg', **attr)
         
         self.Defs       = partial(Defs,                     parent=self, root = self)
         self.Use        = partial(SVGElement, 'use',        parent=self, root = self)
@@ -413,24 +427,15 @@ if __name__ == '__main__':
     import math
     
     svg = SVG(width="150", height="150")
-    '''
-    g = svg.Group(stroke = "black", transform="translate(75,75)")
-    delta = 30
-    for angle in range(0,360 + delta,delta):
-        x = 70.*math.sin(math.radians(angle))
-        y = 70.*math.cos(math.radians(angle))
-        g.Line(x1 = 0, y1 = 0, x2 = x, y2 = y)
-    '''
     
-    svg.TEX('$\sum_{i=0}^\infty x_i$')
-    
-    #grad = svg.defs.linearGradient(id="MyGradient")
-    #grad.Stop(offset="5%", stop_color="#F60")
-    #grad.Stop(offset="95%", stop_color="#FF6")
+    grad = svg.defs.linearGradient(id="MyGradient")
+    grad.Stop(offset="5%", stop_color="#F60")
+    grad.Stop(offset="95%", stop_color="#FF6")
     
     svg.Rect(fill="url(#MyGradient)", stroke="black", stroke_width=5,
-             x=0, y=0, width=150, height=150)
-    svg.write()
+             x=0, y=0,z=-1, width=150, height=150)
+    svg.TEX('$\sum_{i=0}^\infty x_i$')
+    #svg.write()
     
     show(svg)
     

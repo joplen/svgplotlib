@@ -112,7 +112,7 @@ Compared to matplotlib the dependency om numpy have been removed.
                       '/usr/include',
                       '/usr/include/x86_64-linux-gnu',
                   ],
-                  libraries     = [GL, GLU,'m'],
+                  libraries     = [GL, GLU, 'm'],
                   extra_link_args =  VG_extra_link_args,
                   ),
                   

@@ -29,11 +29,13 @@ class Graph(Base):
         
         # plot lines
         >>> graph.drawLines((0,10,20),(0,50,25), 'red')
-        >>> graph.drawLines((0,10,20),(10,25,50), 'blue', stroke_dasharray="5 5", stroke_width=3)
+        >>> graph.drawLines((0,10,20),(10,25,50), 'blue', 
+        ...     stroke_dasharray="5 5", stroke_width=3)
+        >>> 
         
     """
     def __init__(self, *args, **kwargs):
-        Base.__init__(self, **kwargs)
+        super(Graph,self).__init__(**kwargs)
         
         grid = kwargs.get('grid', False)
         titleColor = kwargs.get('titleColor', 'black')
@@ -280,6 +282,7 @@ class Graph(Base):
         self.plotArea.Path(d = ' '.join(path_data), fill = fill, 
                            opacity = opacity, stroke = 'none', **kwargs)
                            
+
 class LineGraph(Graph):
     """
     Simple line graph
@@ -293,17 +296,18 @@ class LineGraph(Graph):
         ...    ylabel = 'Y axis',
         ...    grid = True,
         ... )
-
+        >>> 
     """
     
     def __init__(self, *args, **kwargs):
-        Graph.__init__(self, *args, **kwargs)
+        super(LineGraph,self).__init__(*args,**kwargs)
         
         color = kwargs.get('color', 'blue')
         
         # plot graph
         self.drawLines(color = color)
         
+
 class AreaGraph(LineGraph):
     """
     Simple area graph
@@ -319,12 +323,14 @@ class AreaGraph(LineGraph):
         ...    ylabel = 'Y axis',
         ...    grid = True,
         ... )
+        >>> 
     """
     def __init__(self, *args, **kwargs):
-        LineGraph.__init__(self, *args, **kwargs)
+        super(AreaGraph,self).__init__(*args,**kwargs)
         
         # plot area
         self.drawArea(**kwargs)
+
 
 class DateGraph(Graph):
     """
@@ -349,7 +355,7 @@ class DateGraph(Graph):
             date = datetime.date(year,month + 1,1)
             return date.strftime("%m.%y")
         
-        Graph.__init__(self, xdata, ydata, xfmt = fmt, **kwargs)
+        super(DateGraph, self).__init__(xdata, ydata, xfmt = fmt, **kwargs)
         
     def scaleDates(self, xdata):
         start = self.startDate
@@ -402,7 +408,7 @@ class DateMonthGraph(DateGraph):
         >>> graph = DateMonthGraph(xdata,ydata)
     """
     def __init__(self, *args, **kwargs):
-        DateGraph.__init__(self, *args, **kwargs)
+        super( DateMonthGraph, self).__init__(*args, **kwargs)
         
         # plot graph
         color = kwargs.get('color', 'blue')

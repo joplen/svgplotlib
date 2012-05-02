@@ -33,17 +33,15 @@ class Base(SVG):
     def __init__(self, *args, **kwargs):
         super( Base , self ).__init__()
         
-        #SVG.__init__(self)
-        
         self.xscale, self.yscale = 1.,1.
         
         self.xmajorTicks, self.xminorTicks = None,None
         self.ymajorTicks, self.yminorTicks = None,None
         
         # font
-        self.fontFamily = kwargs.get('fontFamily', Config.DEFAULTFONT)
-        self.fontStyle = kwargs.get('fontStyle', Config.DEFAULTFONTSTYLE)
-        self.fontSize = kwargs.get('fontSize', Config.DEFAULTFONTSIZE)
+        self.fontFamily = kwargs.get('fontFamily', Config.DEFAULTFONT     )
+        self.fontStyle  = kwargs.get('fontStyle',  Config.DEFAULTFONTSTYLE)
+        self.fontSize   = kwargs.get('fontSize',   Config.DEFAULTFONTSIZE )
         
         font = self.font = getFont(family = self.fontFamily, style = self.fontStyle)
         font.set_size(self.fontSize)

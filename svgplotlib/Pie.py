@@ -11,18 +11,19 @@ class Pie(Base):
     Simple Pie style plot
     
     Example::
-        graph =Pie(
-            (10,50,100),
-            title = 'Simple pie plot',
-            labels = ('Cars', 'Boats', 'Planes'),
-        )
+        >>> graph =Pie(
+        ...    (10,50,100),
+        ...    title = 'Simple pie plot',
+        ...    labels = ('Cars', 'Boats', 'Planes'),
+        ... )
+        >>> 
     """
     def __init__(self, values, labels = None, colors = None, **kwargs):
         # smaller default font
         if not 'fontSize' in kwargs:
             kwargs['fontSize'] = 24
             
-        Base.__init__(self, **kwargs)
+        super(Pie,self).__init__(**kwargs)
         
         titleScale = kwargs.get('titleScale', 1.25)
         titleColor = kwargs.get('titleColor', 'black')
