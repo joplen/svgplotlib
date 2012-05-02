@@ -1097,6 +1097,11 @@ static void shTransformSegment(SHPath *p, VGPathSegment segment,
   newSegs[(*segCount)++] = segment | VG_ABSOLUTE;
 }
 
+/*-------------------------------------------------------
+ * Appends a copy of srcPath transformed by the current 
+ * matrix to dstPath.
+ *-------------------------------------------------------*/
+ 
 VG_API_CALL void vgTransformPath(VGPath dstPath, VGPath srcPath)
 {
   SHint newSegCount=0;
@@ -1166,6 +1171,11 @@ static void shInterpolateSegment(SHPath *p, VGPathSegment segment,
     procData[(*procDataCount)++] = data[i];
 }
 
+/*-------------------------------------------------------
+ * Appends a path defined by interpolation (or extrapolation)
+ * between the paths startPath and endPath given by amount,
+ * to the path dstPath.
+ *-------------------------------------------------------*/
 VG_API_CALL VGboolean vgInterpolatePath(VGPath dstPath, VGPath startPath,
                                         VGPath endPath, VGfloat amount)
 {
