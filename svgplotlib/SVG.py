@@ -1,8 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-# This is code is commercial software.
-# Copyright © 2011 by Runar Tenfjord, Tenko.
 import sys
+sys.path.append('..')
 from functools import partial
 
 try:
@@ -10,10 +9,19 @@ try:
 except ImportError:
     from xml.etree import  ElementTree as etree
 
+try:
+    from cairosvg import CairoSVG
+except ImportError:
+    CairoSVG = None
+
+try:
+    from cStringIO import StringIO
+except:
+    from StringIO import StringIO
+    
 from svgplotlib.TEX.Parser import Parser
 from svgplotlib.TEX.Backends import SVGBackend
 from svgplotlib.TEX.Font import BakomaFonts
-from svgplotlib.SVG.Viewer import show
 
 # TEX parser and fonts
 tex_parser = Parser()
@@ -329,6 +337,58 @@ class SVG(SVGBase):
         tree = etree.ElementTree(CloneElement(self))
         tree.write(file, encoding = encoding, **kwargs)
     
+    def writePNG(self, filename, width = -1, height = -1, scale = 1.):
+        '''
+        render to png file
+        '''
+        if CairoSVG is None:
+            raise ImportError('cairo extension not available')
+        
+        if isinstance(filename, basestring):
+            fh = open(filename, 'wb')
+        else:
+            fh = filename
+            
+        svgfh = StringIO()
+        self.write(svgfh)
+        svgfh.seek(0)
+        
+        writer = CairoSVG(svgfh)
+        writer.toPNG(fh, width, height, scale)
+    
+    def writePDF(self, filename, width = -1, height = -1, scale = 1.):
+        '''
+        render to pdf file
+        '''
+        if CairoSVG is None:
+            raise ImportError('cairo extension not available')
+        
+        if isinstance(filename, basestring):
+            fh = open(filename, 'wb')
+        else:
+            fh = filename
+            
+        svgfh = StringIO()
+        self.write(svgfh)
+        svgfh.seek(0)
+        
+        writer = CairoSVG(svgfh)
+        writer.toPDF(fh, width, height, scale)
+    
+    def toArray(self, width = -1, height = -1, scale = 1.):
+        '''
+        render to image buffer in RGBA format
+        '''
+        if CairoSVG is None:
+            raise ImportError('cairo extension not available')
+            
+        svgfh = StringIO()
+        self.write(svgfh)
+        svgfh.seek(0)
+        
+        writer = CairoSVG(svgfh)
+        return writer.toRGBA(width, height, scale)
+        
     @property
     def width(self):
         return int(self.get('width', 500))
@@ -416,8 +476,6 @@ def show(svg, width = 500, height = 500):
                     
                     image.save(filename)
                 
-            
-            
     app = QtGui.QApplication(sys.argv)
     mw = MainWindow()
     mw.show()
@@ -436,6 +494,4 @@ if __name__ == '__main__':
              x=0, y=0,z=-1, width=150, height=150)
     svg.TEX('$\sum_{i=0}^\infty x_i$')
     #svg.write()
-    
     show(svg)
-    
