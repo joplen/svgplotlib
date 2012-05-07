@@ -1,7 +1,8 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 import sys
-sys.path.append('..')
+import os
+import tempfile
 from functools import partial
 
 try:
@@ -401,85 +402,98 @@ def show(svg, width = 500, height = 500):
     '''
     Function to show SVG file with Qt
     '''
-    import io
-    import math
-    
-    from PyQt4 import QtCore, QtGui, QtSvg
-    
-    class SvgWidget(QtSvg.QSvgWidget):
-        def __init__(self, parent):
-            super(SvgWidget, self).__init__(parent)
-            self.setFixedSize(width, height)
-            
-            # white background
-            palette = QtGui.QPalette(self.palette()) 
-            palette.setColor(QtGui.QPalette.Window, QtGui.QColor('white')) 
-            self.setPalette(palette) 
-            self.setAutoFillBackground(True) 
-            
-        def sizeHint(self):
-            return QtCore.QSize(width,height)
+    try:
+        import io
+        import math
+        from PyQt4 import QtCore, QtGui, QtSvg
         
-    class MainWindow(QtGui.QMainWindow):
-        def __init__(self):
-            super(MainWindow, self).__init__()
-            self.setMinimumSize(width + 50, height + 50)
-            self.setWindowTitle('show')
-            
-            self.Actions = {
-                'Save' : QtGui.QAction(
-                    "Save", self, shortcut="Ctrl+S",
-                    triggered=self.SaveFile
-                ),
-                'Quit' : QtGui.QAction(
-                    "Quit", self, shortcut="Ctrl+Q",
-                    triggered=QtGui.qApp.closeAllWindows
-                ),
-            }
-            
-            fileMenu = self.menuBar().addMenu("File")
-            fileMenu.addAction(self.Actions['Save'])
-            fileMenu.addSeparator()
-            fileMenu.addAction(self.Actions['Quit'])
-        
-            self.svg = SvgWidget(self)
-            self.setCentralWidget(self.svg)
-            
-            fh = io.BytesIO()
-            svg.write(fh)
-            self.svg.load(QtCore.QByteArray(fh.getvalue()))
-        
-        def SaveFile(self): 
-            dlg = QtGui.QFileDialog.getSaveFileName
-            filename = dlg(self, "Save", '', "svg file ( *.svg ) ;; image file ( *.png )")
-            
-            if filename:
-                filename = unicode(filename)
+        class SvgWidget(QtSvg.QSvgWidget):
+            def __init__(self, parent):
+                super(SvgWidget, self).__init__(parent)
+                self.setFixedSize(width, height)
                 
-                if filename.endswith('.svg'):
-                    fh = open(filename, 'wb')
-                    svg.write(fh)
-                    fh.close()
-                else:
-                    fh = io.BytesIO()
-                    svg.write(fh)
-                    content = QtCore.QByteArray(fh.getvalue())
-                    
-                    image = QtGui.QImage(width, height, QtGui.QImage.Format_ARGB32_Premultiplied)
-                    
-                    painter = QtGui.QPainter(image)
-                    painter.setViewport(0, 0, width, height)
-                    painter.eraseRect(0, 0, width, height)
-                    render = QtSvg.QSvgRenderer(content)
-                    render.render(painter)
-                    painter.end()
-                    
-                    image.save(filename)
+                # white background
+                palette = QtGui.QPalette(self.palette()) 
+                palette.setColor(QtGui.QPalette.Window, QtGui.QColor('white')) 
+                self.setPalette(palette) 
+                self.setAutoFillBackground(True) 
                 
-    app = QtGui.QApplication(sys.argv)
-    mw = MainWindow()
-    mw.show()
-    app.exec_()
+            def sizeHint(self):
+                return QtCore.QSize(width,height)
+            
+        class MainWindow(QtGui.QMainWindow):
+            def __init__(self):
+                super(MainWindow, self).__init__()
+                self.setMinimumSize(width + 50, height + 50)
+                self.setWindowTitle('show')
+                
+                self.Actions = {
+                    'Save' : QtGui.QAction(
+                        "Save", self, shortcut="Ctrl+S",
+                        triggered=self.SaveFile
+                    ),
+                    'Quit' : QtGui.QAction(
+                        "Quit", self, shortcut="Ctrl+Q",
+                        triggered=QtGui.qApp.closeAllWindows
+                    ),
+                }
+                
+                fileMenu = self.menuBar().addMenu("File")
+                fileMenu.addAction(self.Actions['Save'])
+                fileMenu.addSeparator()
+                fileMenu.addAction(self.Actions['Quit'])
+            
+                self.svg = SvgWidget(self)
+                self.setCentralWidget(self.svg)
+                
+                fh = io.BytesIO()
+                svg.write(fh)
+                self.svg.load(QtCore.QByteArray(fh.getvalue()))
+            
+            def SaveFile(self): 
+                dlg = QtGui.QFileDialog.getSaveFileName
+                filename = dlg(self, "Save", '', "svg file ( *.svg ) ;; image file ( *.png )")
+                
+                if filename:
+                    filename = unicode(filename)
+                    
+                    if filename.endswith('.svg'):
+                        fh = open(filename, 'wb')
+                        svg.write(fh)
+                        fh.close()
+                    else:
+                        fh = io.BytesIO()
+                        svg.write(fh)
+                        content = QtCore.QByteArray(fh.getvalue())
+                        
+                        image = QtGui.QImage(width, height, QtGui.QImage.Format_ARGB32_Premultiplied)
+                        
+                        painter = QtGui.QPainter(image)
+                        painter.setViewport(0, 0, width, height)
+                        painter.eraseRect(0, 0, width, height)
+                        render = QtSvg.QSvgRenderer(content)
+                        render.render(painter)
+                        painter.end()
+                        
+                        image.save(filename)
+                    
+        app = QtGui.QApplication(sys.argv)
+        mw = MainWindow()
+        mw.show()
+        app.exec_()
+    except ImportError:
+        # fallback to use system to show svg
+        fh, tmpfile = tempfile.mkstemp(suffix='svg')
+        os.close(fh)
+        
+        fh = open(tmpfile, 'w')
+        svg.write(fh)
+        
+        if os.name == "nt":
+            os.startfile(tmpfile)
+        else:
+            os.system('xdg-open "%s"' % tmpfile)
+        
     
 if __name__ == '__main__':
     import math

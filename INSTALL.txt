@@ -10,14 +10,8 @@ Requisite dependencies:-
 
 Optional, external backends:-
 ======================
-    *  FTGL
     *  Cairo
     *  PyQt4
-
-Included libraries:-
-======================
-    *  shivaVG
-    *  FTGL
 
 
 ========================
@@ -70,25 +64,3 @@ Alternatively, if you have python's setuptools installed, you can
 do a one-step build and install with the command:-
 
 $ easy_install svgplotlib
-
-
-========================
-	FTGL
-========================
-The FTGL backend is included in the source repository and has to
-be compiled separately.
-Change to the fltk-cython-bindings/src directory and run:-
-
-$ python setup_fltk_build.py
-
-This should build the FLTK shared object file which is importable
-from python.
-
-To test it before installing, add the directory containing
-FTGL.so to your PYTHONPATH environment variable. It should
-be in fltk-cython-bindings/src
-Then, the test scripts in fltk-cython-bindings/tests should
-work.
-
-To install, then type:-
-$ python setup_fltk_build.py install
