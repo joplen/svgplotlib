@@ -15,8 +15,8 @@ class CSS(Odict):
         super(CSS,self).__init__()
         self.update(*args, **kwargs)
     def __repr__(self):
-        return '\n'.join( \
-                ['{0} {1}'.format(*item) for item in self.items()] )
+        return '\n<![CDATA[\n{0}\n]]>\n'.format( '\n'.join( \
+                ['{0} {1}'.format(*item) for item in self.items()] ) )
 
         string = ''
         for style in self.iterkeys():
@@ -46,7 +46,9 @@ quotes = re.compile(r'[\'"]')
 class CSSStyle(Odict):
     """Just an ordered dict with a custom repr method.
     Prints out CSS formatted styles. This object is 
-    intended to store just key:value styles."""
+    intended to store just key:value styles, and not
+    the name (CSS selector) of the object being described.
+    """
     mangle = re.compile( '\_' )
     def __repr__(self):
         sub = self.mangle.sub
@@ -62,5 +64,4 @@ if __name__ == '__main__':
                               'border'       : '1px solid' } }
     svg = SVG()
     svg.Style( **cssdict )
-    #print CSS(**cssdict)
     svg.write()

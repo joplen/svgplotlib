@@ -79,17 +79,19 @@ class Heatmap(Base):
             width  = '{0:.0f}'.format(width)
             self.set('width', width)
 
-        self.set( 'viewBox', '0 0 {0.02f} {1:.02f}'.format( width/2., height/2. ) )
+        self.set( 'viewBox', '0 0 {0} {1}'.format( width, height ) )
 
         self.matrix = matrix
         self.save_labels(xlabels, ylabels)
         self.n_groups = n_groups 
-        self.styles  = { '.row'      : { 'height'  : self.yscale },
+        self.styles  = { 
                          '#xlabels'  : { 'width'   : self.leght ,
                                          'height'  : self.yscale },
-                         '.row > use' : { 'width'  : self.xscale },
+                         '.row'      : { 'height'  : self.yscale },
                          '.row > text': { 'width'       : self.leftshift,
-                                          'text_anchor' : 'end' }
+                                          'text_anchor' : 'end' },
+                         '.row > use' : { 'width'  : self.xscale },
+                         '.row > rect': { 'width'  : self.xscale },
                     }
         try:
             self.Style( **self.styles )
@@ -97,7 +99,6 @@ class Heatmap(Base):
             print self.styles
             styles = self.Style()
             styles.update( self.styles )
-
     
         #self.transform_script()
     hexed = re.compile( '([0-9a-fA-F]{2})' )
@@ -226,7 +227,6 @@ class Heatmap(Base):
             transform="translate({0},{1})".format(self.leftshift, self.topshift) )
 
         self.r = g.Group(id='xlabels', transform="rotate(-90)")
-        #self.r.set('class','row')
 
         map( self.set_xlabel, enumerate(xlabels) )
         set_ylabel = self.set_ylabel
@@ -294,6 +294,7 @@ class Heatmap(Base):
         yb += yshift + 2*self.leght
 
         g = g.Group( id='legendlabels' )
+
         topl = g.Text( x=x ,y=yt )
         topl.text = labels[2]
         midl = g.Text( x=x ,y=ym )
@@ -340,15 +341,18 @@ function adjustXLabel() {{
      label.setAttribute("transform", transform);
     }}
 }}
-""".format( ncols=self.n_cols, nrows=self.n_rows, rowht=self.yscale, rowwd=self.xscale, rowwd2=2*self.xscale )
+""".format( ncols=self.n_cols, nrows=self.n_rows, rowht=self.yscale,
+            rowwd=self.xscale, rowwd2=2*self.xscale )
+
         dom = self.Script( )
         dom.text = js
+        return
 
     def make_rect(self, xlabel, ylabel ):
         xind, xlabel = xlabel
         yind, ylabel = ylabel
-        x = self.leftshift + (xind*self.xscale) + (xind*self.xpad)
-        y = self.topshift  + (yind*self.yscale) + (yind*self.ypad)
+        x = (xind*self.xscale) + (xind*self.xpad)
+        y = 0 #self.topshift  + (yind*self.yscale) + (yind*self.ypad)
         val  = self.matrix[xind][yind]
         rect = self.r.Rect( 
             width  = self.xscale+self.xpad,
@@ -361,8 +365,6 @@ function adjustXLabel() {{
     def use_rect(self, xlabel, ylabel ):
         xind, xlabel = xlabel
         yind, ylabel = ylabel
-        #xpos = self.leftshift  + (xind*self.xscale) + (self.xscale*.75) + (xind*(2*self.xpad))
-        #ypos = self.topshift + (yind*self.yscale) + (self.yscale*.75) + (yind*(2*self.ypad))
         xpos = xind * ( self.xscale + self.xpad )
         val  = self.matrix[xind][yind]
         use  = self.r.Use( transform="translate({0},0)".format(xpos) )
@@ -390,9 +392,8 @@ function adjustXLabel() {{
 
     def set_ylabel(self, label, angle=0):
         yind, label = label
-        x = - self.leftshift*.5 #self.leftshift  + (xind*self.xscale) + (self.xscale*.75) + (xind*(2*self.xpad))
-        y = .75*self.yscale  #(yind*self.yscale) + (self.yscale*.75) + (yind*(2*self.ypad))
-        #node = self.r.Text( x=xpos, y=ypos )   # , transform="rotate({0})".format(angle) )
+        x = - self.leftshift*.5 
+        y = .75*self.yscale  
         node = self.r.Text( transform="translate(0,{0})".format(y) )
         node.text = unicode(label)
         return node.element
@@ -411,6 +412,10 @@ QName = etree.QName
 
 
 def _serialize_svg(write, elem, encoding, qnames, namespaces):
+    """Adapted from cElementTree.py to not serialize <, >, and
+    & symbols into their HTML counterpars. The HTML parser also
+    sets closing tag names to lower case, which breaks general 
+    XML parsers."""
     tag = elem.tag
     text = elem.text
     if tag is Comment:
