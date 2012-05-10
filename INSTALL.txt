@@ -2,7 +2,7 @@
 	Dependencies
 ===========================
 
-Requisite dependencies:-
+Required dependencies:-
 ======================
     *  libfreetype-dev
     *  python v2.5+
@@ -10,13 +10,13 @@ Requisite dependencies:-
 
 Optional, external backends:-
 ======================
-    *  FTGL
     *  Cairo
     *  PyQt4
+    *  FTGL
 
 Included libraries:-
 ======================
-    *  shivaVG
+    *  shivaVG -- deprecated
     *  FTGL
 
 
@@ -54,6 +54,15 @@ and operating system).
 Maybe with something like:-
 
 $ export PYTHONPATH="$PYTHONPATH:$HOME/mybinaries/lib/python2.7/site-packages"
+
+
+The setup script has the following extra options, to turn on or off building
+of the backends:-
+    --without-cairo
+    --with-shivaVG
+
+Neither take options, but for the Cairo backend to build successfully,
+you'll need to download a copy of libcairo-dev and libsvg-cairo
 
 
 

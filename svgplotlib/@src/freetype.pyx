@@ -939,8 +939,8 @@ cdef class FT2Image:
         buffer.readonly = 0
         buffer.format = <char*>"B"
         buffer.ndim = 2
-        buffer.shape = <Py_ssize_t *>&self.__shape
-        buffer.strides = <Py_ssize_t *>&self.__strides
+        buffer.shape = <Py_ssize_t *>&self.__shape[0]
+        buffer.strides = <Py_ssize_t *>&self.__strides[0]
         buffer.suboffsets = NULL
         buffer.itemsize = sizeof(unsigned char)
         buffer.internal = NULL

@@ -305,8 +305,8 @@ class Gantt(Base):
         plot_items(name_width + duration_width, earliest, latest)
         
         # set total size
-        self.set('width', WIDTH + 2*self.PAD)
-        self.set('height', HEIGHT + 2*self.PAD)
+        self.set('width',  str(WIDTH  + 2*self.PAD))
+        self.set('height', str(HEIGHT + 2*self.PAD))
             
 if __name__ == '__main__':
     from svgplotlib.SVG import show

@@ -71,7 +71,7 @@ void checkFBO(OffScreen *os)
         }
     }
 #else
-    printf("checkFBO not implemented!");
+    printf("checkFBO not implemented!\n");
 #endif
 }
 
@@ -96,7 +96,7 @@ void setupFBO(OffScreen *os, int width, int height)
         glWindowPos2d(0,0);
     }
 #else
-    printf("setupFBO not implemented!");
+    printf("setupFBO not implemented!\n");
 #endif
 }
 
@@ -108,7 +108,7 @@ void destroyFBO(OffScreen *os)
     glDeleteRenderbuffers(1, &os->db);
     glDeleteFramebuffers(1, &os->fb);
 #else
-    printf("destroyFBO not implemented!");
+    printf("destroyFBO not implemented!\n");
 #endif
 }
 
@@ -205,7 +205,7 @@ VG_API_CALL VGboolean shOffscreenRender(int width, int height, OffScreenCB draw,
     wglMakeCurrent(saved_dc,saved_rc);
     return ret;
 #else
-    printf("shOffscreenRender not implemented!");
+    printf("shOffscreenRender not implemented!\n");
 #endif
 }
 
@@ -293,7 +293,7 @@ VG_API_CALL void *vgCreateOffScreenSH(void)
     }
     return (void *)os;
 #else
-    printf("vgCreateOffScreenSH not implemented!");
+    printf("vgCreateOffScreenSH not implemented!\n");
 #endif
 }
 
@@ -319,7 +319,7 @@ VG_API_CALL void vgDestroyOffScreenSH(void *oscontext)
     }
     wglMakeCurrent(os->saved_dc, os->saved_rc);
 #else
-    printf("shOffscreenRender not implemented!");
+    printf("shOffscreenRender not implemented!\n");
 #endif
 }
 
@@ -342,7 +342,7 @@ VG_API_CALL void vgStartOffScreenSH(void *oscontext, int width, int height)
         }
     }
 #else
-    printf("vgStartOffScreenSH not implemented!");
+    printf("vgStartOffScreenSH not implemented!\n");
 #endif
 }
 
@@ -382,6 +382,6 @@ VG_API_CALL void vgEndOffScreenSH(void *oscontext, unsigned char *pixels)
         vgDestroyContextSH();
     }
 #else
-    printf("vgEndOffScreenSH not implemented!");
+    printf("vgEndOffScreenSH not implemented!\n");
 #endif
 }

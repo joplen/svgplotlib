@@ -10,10 +10,20 @@ try:
 except ImportError:
     from xml.etree import  ElementTree as etree
 
+try:
+    from cairosvg import CairoSVG
+except ImportError:
+    CairoSVG = None
+
+try:
+    from cStringIO import StringIO
+except:
+    from StringIO import StringIO
+    
 from svgplotlib.TEX.Parser import Parser
 from svgplotlib.TEX.Backends import SVGBackend
 from svgplotlib.TEX.Font import BakomaFonts
-from svgplotlib.SVG.Viewer import show
+from svgplotlib.SVG.Viewer import Viewer, show
 
 # TEX parser and fonts
 tex_parser = Parser()
@@ -22,18 +32,23 @@ tex_fonts = BakomaFonts()
 # Mangle names
 MangleDict = lambda d: dict((name.replace('_','-'),value) for name,value in d.items())
 
+def sanitize(item):
+    name,value=item
+    if isinstance(value, (tuple,list)):
+        value = unicode(value)[1:-1]
+    elif name == 'root':
+        return (None,None)
+    else:
+        #attrib[name] = unicode(value)
+        value = unicode(value)
+    return (name,value,)
+
 def CloneElement(elem):
     '''
     Clone root element and ensure attribs are valid text items
     '''
-    attrib = {}
-    for name,value in elem.attrib.items():
-        if isinstance(value, (tuple,list)):
-            attrib[name] = unicode(value)[1:-1]
-        elif name == 'root':
-            continue
-        else:
-            attrib[name] = unicode(value)
+    attrib = dict(map( sanitize, elem.attrib.iteritems() ))
+    attrib.pop(None,None)
     
     ret = etree.Element(elem.tag, attrib)
     ret.text = elem.text
@@ -41,7 +56,6 @@ def CloneElement(elem):
     
     for child in elem.getchildren():
         ret.append(CloneElement(child))
-        
     return ret
 
 class SVGBase(object):
@@ -54,19 +68,40 @@ class SVGBase(object):
         self.element = element = etree.Element(name, **kwargs)
 
         for i in dir(element):
-            setattr(self,i, getattr(element,i) )
+            setattr(self, i, getattr(element,i) )
+
+    def __iter__(self):
+        return self.iter()
 
     @property
     def tag(self):
        return self.element.tag
+    @tag.setter
+    def tag(self,value):
+        self.element.tag = value
+    @tag.deleter
+    def tag(self):
+        del(self.element.tag)
 
     @property
     def text(self):
        return self.element.text
+    @text.setter
+    def text(self,value):
+        self.element.text = value
+    @text.deleter
+    def text(self):
+        del(self.element.text)
 
     @property
     def tail(self):
        return self.element.tail
+    @tail.setter
+    def tail(self,value):
+        self.element.tail = value
+    @tail.deleter
+    def tail(self):
+        del(self.element.tail)
 
     @property
     def attrib(self):
@@ -83,6 +118,53 @@ class SVGElement(SVGBase):
         parent = attrib.pop('parent')
         super(SVGElement,self).__init__(name, **attrib)
         parent.append(self.element)
+
+class CSSElement(SVGBase):
+    def __init__(self, **kwargs):
+        """kwargs should be a dictionary of dictionaries.
+        Top level keys are CSS selectors, and inner dicts
+        hold the style key : value pairs.
+        
+        >>> from svgplotlib.SVG import SVG
+        >>> cssdict =  { '#boxId' : { 'border_color' : 'blue',
+        ...                           'border'       : '1px solid' } }
+        >>> svg = SVG()
+        >>> svg.Style( **cssdict )
+        """
+        from svgplotlib.SVG.CSS import CSS
+        attrib  = MangleDict(kwargs)
+        mroargs = dict( (('parent', attrib.pop('parent')), \
+                        ('root', attrib.pop('root')),) )
+        super(CSSElement,self).__init__('style', type='text/css', **mroargs)
+        self.styles = CSS(**attrib)
+        mroargs.pop('parent').append(self.element)
+    def append(self, *args, **kwargs):
+        self.styles.update( *args, **kwargs )
+    @property
+    def text(self):
+        return '<![CDATA[\n{0}\n]]>'.format(self.styles)
+
+class JSElement(SVGBase):
+    def __init__(self, **kwargs):
+        attrib = MangleDict(kwargs)
+        parent = attrib.pop('parent')
+        if 'type' not in attrib:
+            attrib.update( { 'type' : 'text/ecmascript' } )
+        super(JSElement,self).__init__('script', **attrib)
+        self._script = ''
+        parent.append(self.element)
+    def append(self, *args, **kwargs):
+        self.styles.update( *args, **kwargs )
+    @property
+    def tag(self):
+        return 'script'
+    @property
+    def text(self):
+        return u'<![CDATA[\n{0}\n]]>'.format(self._script)
+    @text.setter
+    def text(self, value):
+        self._script = value
+        self.element.text = u'<![CDATA[\n{0}\n]]>'.format(value)
 
 class Defs(SVGBase):
     def __init__(self, **kwargs):
@@ -103,6 +185,7 @@ class Defs(SVGBase):
         self.Ellipse    = partial(SVGElement, 'ellipse',  parent=self, root = root)
         self.Path       = partial(SVGElement, 'path',     parent=self, root = root)
         self.Text       = partial(SVGElement, 'text',     parent=self, root = root)
+        self.Tspan      = partial(SVGElement, 'tspan',    parent=self, root = root)
         
         self.linearGradient = partial(linearGradient, parent=self, root = root)
         self.radialGradient = partial(radialGradient, parent=self, root = root)
@@ -161,7 +244,7 @@ class EText(SVGBase):
         if scale != 1.:
             transform.append("scale(%g)" % scale)
         
-        super(EText, self).__init__('g',transform=' '.join(transform), **attrib)
+        super(EText, self).__init__('g', transform=' '.join(transform), **attrib)
         parent.append(self.element)
         
         # create glyps
@@ -179,10 +262,18 @@ class EText(SVGBase):
 class Gradient(SVGBase):
     def __init__(self, **kwargs):
         """
+        Creates a gradient definition. Give each gradient
+        an id and reference the gradient as a fill for 
+        any objects that should be using it. The gradient
+        should thus be defined in the SVG's def section.
+        e.g.
         >>> svg = SVG(width="150", height="150")
         >>> grad = svg.defs.linearGradient(id="MyGradient")
         >>> s = grad.Stop(offset="5%", stop_color="#F60")
         >>> s = grad.Stop(offset="95%", stop_color="#FF6")
+        >>> r = svg.Rect(fill="url(#MyGradient)", stroke="black", stroke_width=5,
+        ...      x=0, y=0, width=150, height=150)
+        >>> v = Viewer(svg)
         """
         # mangle names
         attrib = MangleDict(kwargs)
@@ -232,9 +323,10 @@ class Group(SVGBase):
         self.Ellipse  = partial(SVGElement, 'ellipse',  parent=self, root = root)
         self.Path     = partial(SVGElement, 'path',     parent=self, root = root)
         self.Text     = partial(SVGElement, 'text',     parent=self, root = root)
+        self.Tspan    = partial(SVGElement, 'tspan',    parent=self, root = root)
         self.EText    = partial(EText,                  parent=self, root = root)
         self.TEX      = partial(TEX,                    parent=self, root = root)
-        
+
 class SVG(SVGBase):
     '''
     SVG root element
@@ -294,16 +386,18 @@ class SVG(SVGBase):
         super(SVG, self).__init__('svg', **attr)
         
         self.Defs       = partial(Defs,                     parent=self, root = self)
-        self.Use        = partial(SVGElement, 'use',        parent=self, root = self)
+        self.Style      = partial(CSSElement,               parent=self, root = self)
+        self.Script     = partial(JSElement ,               parent=self, root = self)
         self.Group      = partial(Group,                    parent=self, root = self)
-        self.Line       = partial(SVGElement, 'line',       parent=self, root = self)
-        self.Polyline   = partial(SVGElement, 'polyline',   parent=self, root = self)
-        self.Polygon    = partial(SVGElement, 'polygon',    parent=self, root = self)
-        self.Rect       = partial(SVGElement, 'rect',       parent=self, root = self)
         self.Circle     = partial(SVGElement, 'circle',     parent=self, root = self)
         self.Ellipse    = partial(SVGElement, 'ellipse',    parent=self, root = self)
+        self.Line       = partial(SVGElement, 'line',       parent=self, root = self)
         self.Path       = partial(SVGElement, 'path',       parent=self, root = self)
+        self.Polygon    = partial(SVGElement, 'polygon',    parent=self, root = self)
+        self.Polyline   = partial(SVGElement, 'polyline',   parent=self, root = self)
+        self.Rect       = partial(SVGElement, 'rect',       parent=self, root = self)
         self.Text       = partial(SVGElement, 'text',       parent=self, root = self)
+        self.Use        = partial(SVGElement, 'use',        parent=self, root = self)
         self.EText      = partial(EText,                    parent=self, root = self)
         self.TEX        = partial(TEX,                      parent=self, root = self)
         
@@ -329,6 +423,58 @@ class SVG(SVGBase):
         tree = etree.ElementTree(CloneElement(self))
         tree.write(file, encoding = encoding, **kwargs)
     
+    def writePNG(self, filename, width = -1, height = -1, scale = 1.):
+        '''
+        render to png file
+        '''
+        if CairoSVG is None:
+            raise ImportError('cairo extension not available')
+        
+        if isinstance(filename, basestring):
+            fh = open(filename, 'wb')
+        else:
+            fh = filename
+            
+        svgfh = StringIO()
+        self.write(svgfh)
+        svgfh.seek(0)
+        
+        writer = CairoSVG(svgfh)
+        writer.toPNG(fh, width, height, scale)
+    
+    def writePDF(self, filename, width = -1, height = -1, scale = 1.):
+        '''
+        render to pdf file
+        '''
+        if CairoSVG is None:
+            raise ImportError('cairo extension not available')
+        
+        if isinstance(filename, basestring):
+            fh = open(filename, 'wb')
+        else:
+            fh = filename
+            
+        svgfh = StringIO()
+        self.write(svgfh)
+        svgfh.seek(0)
+        
+        writer = CairoSVG(svgfh)
+        writer.toPDF(fh, width, height, scale)
+    
+    def toArray(self, width = -1, height = -1, scale = 1.):
+        '''
+        render to image buffer in RGBA format
+        '''
+        if CairoSVG is None:
+            raise ImportError('cairo extension not available')
+            
+        svgfh = StringIO()
+        self.write(svgfh)
+        svgfh.seek(0)
+        
+        writer = CairoSVG(svgfh)
+        return writer.toRGBA(width, height, scale)
+        
     @property
     def width(self):
         return int(self.get('width', 500))
@@ -337,91 +483,6 @@ class SVG(SVGBase):
     def height(self):
         return int(self.get('height', 500))
 
-def show(svg, width = 500, height = 500):
-    '''
-    Function to show SVG file with Qt
-    '''
-    import io
-    import math
-    
-    from PyQt4 import QtCore, QtGui, QtSvg
-    
-    class SvgWidget(QtSvg.QSvgWidget):
-        def __init__(self, parent):
-            super(SvgWidget, self).__init__(parent)
-            self.setFixedSize(width, height)
-            
-            # white background
-            palette = QtGui.QPalette(self.palette()) 
-            palette.setColor(QtGui.QPalette.Window, QtGui.QColor('white')) 
-            self.setPalette(palette) 
-            self.setAutoFillBackground(True) 
-            
-        def sizeHint(self):
-            return QtCore.QSize(width,height)
-        
-    class MainWindow(QtGui.QMainWindow):
-        def __init__(self):
-            super(MainWindow, self).__init__()
-            self.setMinimumSize(width + 50, height + 50)
-            self.setWindowTitle('show')
-            
-            self.Actions = {
-                'Save' : QtGui.QAction(
-                    "Save", self, shortcut="Ctrl+S",
-                    triggered=self.SaveFile
-                ),
-                'Quit' : QtGui.QAction(
-                    "Quit", self, shortcut="Ctrl+Q",
-                    triggered=QtGui.qApp.closeAllWindows
-                ),
-            }
-            
-            fileMenu = self.menuBar().addMenu("File")
-            fileMenu.addAction(self.Actions['Save'])
-            fileMenu.addSeparator()
-            fileMenu.addAction(self.Actions['Quit'])
-        
-            self.svg = SvgWidget(self)
-            self.setCentralWidget(self.svg)
-            
-            fh = io.BytesIO()
-            svg.write(fh)
-            self.svg.load(QtCore.QByteArray(fh.getvalue()))
-        
-        def SaveFile(self): 
-            dlg = QtGui.QFileDialog.getSaveFileName
-            filename = dlg(self, "Save", '', "svg file ( *.svg ) ;; image file ( *.png )")
-            
-            if filename:
-                filename = unicode(filename)
-                
-                if filename.endswith('.svg'):
-                    fh = open(filename, 'wb')
-                    svg.write(fh)
-                    fh.close()
-                else:
-                    fh = io.BytesIO()
-                    svg.write(fh)
-                    content = QtCore.QByteArray(fh.getvalue())
-                    
-                    image = QtGui.QImage(width, height, QtGui.QImage.Format_ARGB32_Premultiplied)
-                    
-                    painter = QtGui.QPainter(image)
-                    painter.setViewport(0, 0, width, height)
-                    painter.eraseRect(0, 0, width, height)
-                    render = QtSvg.QSvgRenderer(content)
-                    render.render(painter)
-                    painter.end()
-                    
-                    image.save(filename)
-                
-            
-            
-    app = QtGui.QApplication(sys.argv)
-    mw = MainWindow()
-    mw.show()
-    app.exec_()
     
 if __name__ == '__main__':
     import math
@@ -433,9 +494,7 @@ if __name__ == '__main__':
     grad.Stop(offset="95%", stop_color="#FF6")
     
     svg.Rect(fill="url(#MyGradient)", stroke="black", stroke_width=5,
-             x=0, y=0,z=-1, width=150, height=150)
+             x=0, y=0, width=150, height=150)
     svg.TEX('$\sum_{i=0}^\infty x_i$')
     #svg.write()
-    
     show(svg)
-    
