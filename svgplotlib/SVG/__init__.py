@@ -17,13 +17,12 @@ except ImportError:
 
 try:
     from cStringIO import StringIO
-except:
+except ImportError:
     from StringIO import StringIO
     
 from svgplotlib.TEX.Parser import Parser
 from svgplotlib.TEX.Backends import SVGBackend
 from svgplotlib.TEX.Font import BakomaFonts
-from svgplotlib.SVG.Viewer import Viewer, show
 
 # TEX parser and fonts
 tex_parser = Parser()
@@ -132,17 +131,25 @@ class CSSElement(SVGBase):
         >>> svg.Style( **cssdict )
         """
         from svgplotlib.SVG.CSS import CSS
-        attrib  = MangleDict(kwargs)
-        mroargs = dict( (('parent', attrib.pop('parent')), \
-                        ('root', attrib.pop('root')),) )
+        #attrib  = MangleDict(kwargs)
+        parent = kwargs.pop( 'parent' )
+        mroargs = { 'root' :   kwargs.pop('root') }
         super(CSSElement,self).__init__('style', type='text/css', **mroargs)
-        self.styles = CSS(**attrib)
-        mroargs.pop('parent').append(self.element)
+        self.styles = CSS(**kwargs)
+        self.text = self.styles.__repr__()
+        parent.append(self.element)
     def append(self, *args, **kwargs):
         self.styles.update( *args, **kwargs )
+        self.text = self.styles.__repr__()
     @property
     def text(self):
         return '<![CDATA[\n{0}\n]]>'.format(self.styles)
+    @text.setter
+    def text(self,value):
+        self.element.text = value
+    @text.deleter
+    def text(self):
+        del(self.element.text)
 
 class JSElement(SVGBase):
     def __init__(self, **kwargs):
@@ -267,6 +274,7 @@ class Gradient(SVGBase):
         any objects that should be using it. The gradient
         should thus be defined in the SVG's def section.
         e.g.
+        >>> from svgplotlib.SVG.Viewer import Viewer
         >>> svg = SVG(width="150", height="150")
         >>> grad = svg.defs.linearGradient(id="MyGradient")
         >>> s = grad.Stop(offset="5%", stop_color="#F60")
@@ -303,7 +311,6 @@ class Group(SVGBase):
         ...     x = 70.*math.sin(math.radians(angle))
         ...     y = 70.*math.cos(math.radians(angle))
         ...     l = g.Line(x1 = 0, y1 = 0, x2 = x, y2 = y)
-        >>> #show(svg)
         '''
         # mangle names
         attrib = MangleDict(kwargs)
@@ -356,6 +363,7 @@ class SVG(SVGBase):
     All constructors except for EText and TEX are standard SVG elements.
     
     Example::
+        >>> from svgplotlib.SVG.Viewer import show
         >>> svg = SVG(width=50, height=50)
         >>> g = svg.Group(stroke = "black")
         >>> l = svg.Line(x1 = 0, y1 = 0., x2 = 50., y2 = 50., stroke='red', parent = g)
@@ -485,6 +493,7 @@ class SVG(SVGBase):
 
     
 if __name__ == '__main__':
+    from svgplotlib.SVG.Viewer import Show
     import math
     
     svg = SVG(width="150", height="150")

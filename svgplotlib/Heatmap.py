@@ -62,8 +62,10 @@ class Heatmap(Base):
         self.topshift  += int(biggestsize[1]*2)
         self.xpad, self.ypad = xpad, ypad
         if height is None:
-            self.set('height',  ( self.yscale + ypad ) * len(ylabels) + \
-                                    self.topshift + self.leght )
+            height =  ( self.yscale + ypad ) * len(ylabels) + \
+                        self.topshift + self.leght 
+            height = '{0:.0f}'.format(height)
+            self.set('height', height)
 
         # same for left (y-labels)
         longestlabel    = max([(len(str(yval)),i) for i,yval in enumerate(ylabels)])
@@ -72,19 +74,23 @@ class Heatmap(Base):
         self.xscale     = int(biggestsize[1])
 
         if width is None:
-            self.set('width',  ( self.xscale + xpad ) * len(xlabels) + \
-                                    self.leftshift + self.legwd )
+            width  =  ( self.xscale + xpad ) * len(xlabels) + \
+                        self.leftshift + self.legwd
+            width  = '{0:.0f}'.format(width)
+            self.set('width', width)
 
-        #svg = self.svg  = SVG(  width=width, height=height)
+        self.set( 'viewBox', '0 0 {0.02f} {1:.02f}'.format( width/2., height/2. ) )
 
         self.matrix = matrix
         self.save_labels(xlabels, ylabels)
         self.n_groups = n_groups 
         self.styles  = { '.row'      : { 'height'  : self.yscale },
-                         '#xlabels'  : { 'width'   : self.leght,
+                         '#xlabels'  : { 'width'   : self.leght ,
                                          'height'  : self.yscale },
-                         '.ylab'     : { 'width'   : self.leftshift },
-                         '.row > use': { 'width'   : self.xscale }  } 
+                         '.row > use' : { 'width'  : self.xscale },
+                         '.row > text': { 'width'       : self.leftshift,
+                                          'text_anchor' : 'end' }
+                    }
         try:
             self.Style( **self.styles )
         except Exception,e:
@@ -202,12 +208,8 @@ class Heatmap(Base):
                 id = '#c{0}'.format(i)
             else: # value > mid
                 hot = colour_groups['hot']
-                try:
-                    while value > hot[i]:
-                        i += 1
-                except IndexError:
-                    print len(hot), len(self.xlabels), len(self.ylabels), i
-                    raise
+                while value > hot[i]:
+                    i += 1
                 id = '#h{0}'.format(i)
             return id
         self.heat_ID    = IDgen
@@ -243,16 +245,6 @@ class Heatmap(Base):
             map( make_rect, enumerate(xlabels), ylab )
         self.draw_legend()
         return
-
-        ## DEPRECATED
-        mapped = itertools.product( enumerate(xlabels),
-                                    enumerate(ylabels) )
-        htmp = itertools.imap( self.draw_box , mapped ) 
-        map( g.append, htmp )
-        g = self.g = self.Group(id='ylabels')
-        map( g.append, map( self.set_ylabel, enumerate(self.ylabels) ) )
-        g = self.g = self.Group(id='legend')
-        self.draw_legend()
 
     def draw_box( self, xlabel_ylabel ):
         xlabel, ylabel = xlabel_ylabel
@@ -301,7 +293,7 @@ class Heatmap(Base):
         ym += yshift +   self.leght
         yb += yshift + 2*self.leght
 
-        g = g.Group( id='legendlabels', text_align='right' )
+        g = g.Group( id='legendlabels' )
         topl = g.Text( x=x ,y=yt )
         topl.text = labels[2]
         midl = g.Text( x=x ,y=ym )
@@ -398,12 +390,10 @@ function adjustXLabel() {{
 
     def set_ylabel(self, label, angle=0):
         yind, label = label
-        #x = self.leftshift - self.textSize(label)[0] - 5
-        #y = self.topshift + (yind*self.yscale) + (self.yscale*.75) + (yind*(2*self.ypad))
         x = - self.leftshift*.5 #self.leftshift  + (xind*self.xscale) + (self.xscale*.75) + (xind*(2*self.xpad))
         y = .75*self.yscale  #(yind*self.yscale) + (self.yscale*.75) + (yind*(2*self.ypad))
         #node = self.r.Text( x=xpos, y=ypos )   # , transform="rotate({0})".format(angle) )
-        node = self.r.Text( transform="translate({0},{1})".format(x,y) )
+        node = self.r.Text( transform="translate(0,{0})".format(y) )
         node.text = unicode(label)
         return node.element
 

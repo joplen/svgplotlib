@@ -142,11 +142,10 @@ class FLGLWidget(Fl.Gl_Window):
         return 0
 
 class Viewer(Fl.Double_Window):
-    def __init__(self, svg, width=500, height=500 ):
+    def __init__(self, svg=None, width=500, height=500 ):
         try:
             WIDTH, HEIGHT = width, height
             super(Viewer,self).__init__(WIDTH,HEIGHT)
-            #window = Fl.Double_Window(WIDTH, HEIGHT)
             menu = Fl.Menu_Bar(0,0,WIDTH,30)
 
             widget = GLWidget(10,40, WIDTH - 20, HEIGHT - 50)
@@ -159,8 +158,8 @@ class Viewer(Fl.Double_Window):
             self.resizable(widget)
             self.show()
             widget.show()
-            if not filename is None:
-                widget.openFile(filename=filename)
+            if not svg is None:
+                widget.openFile( filename = svg )
             Fl.run()
                 
         finally:

@@ -11,6 +11,7 @@ except ImportError:
     try:
         import svgplotlib.FLTK as Fl
     except ImportError:
+        print 'Failed to import FLTK'
         pass
     else:
         import fltk
@@ -21,4 +22,7 @@ else:
     Viewer = Qt.Viewer
     show   = Qt.show
 
-import VG
+try:
+    import VG
+except ImportError:
+    pass

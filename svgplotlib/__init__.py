@@ -5,9 +5,8 @@ import os
 from os.path import join, abspath, dirname, expandvars
 from collections import namedtuple
 
-from svgplotlib.Config import config
 import svgplotlib.Config as Config
-from svgplotlib.freetype import FT2Font
+from freetype import FT2Font
 from svgplotlib.SVG import SVG, tex_parser, tex_fonts
 from svgplotlib.Scale import Scale
 
@@ -269,6 +268,7 @@ def getFont(family = Config.DEFAULTFONT, style = Config.DEFAULTFONTSTYLE):
     return Font(path)
 
 # load fonts into dict
+config = Config.config
 if config.has_option('fonts', 'fontpaths'):
     fontpaths = config.get('fonts', 'fontpaths').split(';')
 else:

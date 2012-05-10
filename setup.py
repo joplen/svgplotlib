@@ -14,23 +14,25 @@ if os.name == "posix":
     XLIBS = ["png", "jpeg", "z", "GL", "pthread"] 
     XLINKARGS = [] 
     if sys.platform == 'darwin':
-        #/Developer/SDKs/MacOSX10.7.sdk/usr/X11/include/freetype2
         devdir = '/Developer/SDKs/MacOSX10.{0}.sdk/usr/X11/include'
         if os.path.exists(devdir.format(7)):
             devdir = devdir.format(7)
             freetype_includes = [devdir, '{0}/freetype2'.format(devdir)]
             cairo_includes    = [devdir, '{0}/cairo'.format(devdir)]
+            extra_vg_includes = [devdir]
         elif os.path.exists(devdir.format(6)):
             devdir = devdir.format(6)
             freetype_includes = [devdir, '{0}/freetype2'.format(devdir)]
             cairo_includes    = [devdir, '{0}/cairo'.format(devdir)]
+            extra_vg_includes = [devdir]
 
-        #VG_extra_link_args = ["-L/usr/X11/lib"]
-        #if sys.maxsize > 2**32:
-        #    VG_extra_link_args += ['-arch','x86_64']
+        VG_extra_link_args = ["-L/usr/X11/lib"]
+        if sys.maxsize > 2**32:
+            VG_extra_link_args += ['-arch','x86_64']
     else:
         freetype_includes = ['/usr/include/freetype2']
         cairo_includes    = ['/usr/include/cairo']
+        extra_vg_includes = []
     
 elif os.name == "nt":
     GL = "OPENGL32"
@@ -40,6 +42,7 @@ elif os.name == "nt":
     VG_extra_link_args = ["-mwindows","-mno-cygwin"]
     freetype_include_dir = []
     cairo_includes = []
+    extra_vg_includes = []
 
 extensions = [
     Extension("svgplotlib.freetype",
@@ -63,6 +66,7 @@ else:
 
 if '--with-shiva' in sys.argv:
     idx = sys.argv.index( '--with-shiva')
+    del(sys.argv[idx])
     extensions.append(
         Extension("svgplotlib.VG",
               sources = [ "svgplotlib/@src/shivavg/src/" + fname 
@@ -90,10 +94,27 @@ if '--with-shiva' in sys.argv:
                   'svgplotlib/@src/shivavg/src',
                   '/usr/include',
                   '/usr/include/x86_64-linux-gnu',
-              ],
+              ] + extra_vg_includes,
               libraries     = [GL, GLU, 'm'],
               extra_link_args =  VG_extra_link_args,
           ) )
+
+if '--with-fltk' in sys.argv:
+    idx = sys.argv.index('--with-fltk')
+    del(sys.argv[idx])
+    extensions.append(
+       Extension("FLTK",
+                   sources=["FLTK/FLTK.pyx"],
+                   depends = ["FLTK/FLTKLib.pxd"],
+                   include_dirs = ['FLTK'],
+                   library_dirs = ['FLTK'],
+                   libraries=["fltk", "fltk_images", "fltk_gl"] + XLIBS, 
+                   extra_link_args = XLINKARGS,
+                   language="c++"),
+       )
+
+
+
 
 classifiers = '''\
 Environment :: Console

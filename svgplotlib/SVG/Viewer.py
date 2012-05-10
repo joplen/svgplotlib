@@ -8,8 +8,13 @@ except ImportError:
 
 from svgplotlib.SVG import Backend
 
-Viewer = Backend.Viewer
-show   = Backend.show
+try:
+    Viewer = Backend.Viewer
+    show   = Backend.show
+except AttributeError:
+    print "Rendering functionality disabled"
+    Viewer = lambda x : None
+    show   = lambda x : None
 
 
 def readFile(filename):

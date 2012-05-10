@@ -57,6 +57,10 @@ class CSSStyle(Odict):
 
 
 if __name__ == '__main__':
+    from svgplotlib.SVG import SVG
     cssdict =  { '#boxId' : { 'border_color' : 'blue',
                               'border'       : '1px solid' } }
-    print CSS(**cssdict)
+    svg = SVG()
+    svg.Style( **cssdict )
+    #print CSS(**cssdict)
+    svg.write()
