@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import sys
 sys.path.append('..')
-import FLTK as Fl
+import svgplotlib.FLTK as Fl
     
 window = Fl.Window(320,320)
 b1 = Fl.Button(10, 10, 300, 300)

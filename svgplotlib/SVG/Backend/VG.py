@@ -1,33 +1,38 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-from xml.etree import cElementTree
+try:
+    from xml.etree import cElementTree as etree
+except ImportError:
+    from xml.etree import ElementTree as etree
+
+import svgplotlib.VG as vg
 
 from svgplotlib.SVG.VGParser import Parser, Box
 
 class Renderer(Parser):
-    LINK = '{http://www.w3.org/1999/xlink}href'
+    LINK = 'xlink:href'
     
     SVG_NS = '{http://www.w3.org/2000/svg}'
-    SVG_ROOT            = SVG_NS + 'svg'
-    SVG_A               = SVG_NS + 'a'
-    SVG_G               = SVG_NS + 'g'
-    SVG_TITLE           = SVG_NS + 'title'
-    SVG_DESC            = SVG_NS + 'desc'
-    SVG_DEFS            = SVG_NS + 'defs'
-    SVG_SYMBOL          = SVG_NS + 'symbol'
-    SVG_USE             = SVG_NS + 'use'
-    SVG_RECT            = SVG_NS + 'rect'
-    SVG_CIRCLE          = SVG_NS + 'circle'
-    SVG_ELLIPSE         = SVG_NS + 'ellipse'
-    SVG_LINE            = SVG_NS + 'line'
-    SVG_POLYLINE        = SVG_NS + 'polyline'
-    SVG_POLYGON         = SVG_NS + 'polygon'
-    SVG_PATH            = SVG_NS + 'path'
-    SVG_LINEARGRADIENT  = SVG_NS + 'linearGradient'
-    SVG_RADIALGRADIENT  = SVG_NS + 'radialGradient'
-    SVG_TEXT            = SVG_NS + 'text'
-    SVG_TSPAN           = SVG_NS + 'tspan'
-    SVG_IMAGE           = SVG_NS + 'image'
+    SVG_ROOT            =  'svg'
+    SVG_A               =  'a'
+    SVG_G               =  'g'
+    SVG_TITLE           =  'title'
+    SVG_DESC            =  'desc'
+    SVG_DEFS            =  'defs'
+    SVG_SYMBOL          =  'symbol'
+    SVG_USE             =  'use'
+    SVG_RECT            =  'rect'
+    SVG_CIRCLE          =  'circle'
+    SVG_ELLIPSE         =  'ellipse'
+    SVG_LINE            =  'line'
+    SVG_POLYLINE        =  'polyline'
+    SVG_POLYGON         =  'polygon'
+    SVG_PATH            =  'path'
+    SVG_LINEARGRADIENT  =  'linearGradient'
+    SVG_RADIALGRADIENT  =  'radialGradient'
+    SVG_TEXT            =  'text'
+    SVG_TSPAN           =  'tspan'
+    SVG_IMAGE           =  'image'
     
     SVG_NODES = frozenset((
         SVG_ROOT, SVG_A, SVG_G, SVG_TITLE, SVG_DESC, SVG_DEFS, SVG_SYMBOL,
@@ -58,10 +63,12 @@ class Renderer(Parser):
         
         self.bounds = Box()
         
+        if hasattr(xmltree,'element'):
+            xmltree = xmltree.element
         self.xmltree = xmltree
         
         # svg fragment?
-        if cElementTree.iselement(xmltree) and xmltree.tag == self.SVG_ROOT:
+        if etree.iselement(xmltree) and xmltree.tag == self.SVG_ROOT:
             root = xmltree
         else:
             root = xmltree.getroot()
@@ -369,6 +376,8 @@ class Renderer(Parser):
             
         saved = {}
         for name, value in style.iteritems():
+            if not value:
+                continue
             if name == 'hasFill':
                 if save:
                     saved[name] = self.hasFill
@@ -388,7 +397,7 @@ class Renderer(Parser):
                 self.gradient = value
                 
             elif name == 'fill':
-                if cElementTree.iselement(value):
+                if etree.iselement(value):
                     self.render(value)
                 else:
                     if save:
@@ -410,7 +419,6 @@ class Renderer(Parser):
                 
                 if 'stroke-opacity' in style:
                     value = value[0], value[1], value[2], style['stroke-opacity']
-                
                 vg.SetParameterfv(self.stroke, vg.PAINT_COLOR, 4, value)
             
             elif name == 'stroke-linecap':
@@ -461,7 +469,7 @@ class Renderer(Parser):
         return saved
 
 if __name__ == '__main__':
-    xmltree = cElementTree.fromstring("""<?xml
+    xmltree = etree.fromstring("""<?xml
 version="1.0" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" 
   "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
@@ -485,7 +493,7 @@ version="1.0" standalone="no"?>
 
     renderer = Renderer(xmltree)
     
-    import FLTK as Fl
+    import svgplotlib.FLTK as Fl
     
     WIDTH, HEIGHT = 600,700
     window = Fl.Window(WIDTH, HEIGHT)

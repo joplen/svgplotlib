@@ -130,8 +130,7 @@ def parseLength(length):
         "mm": 3.543307, "cm": 35.43307,
         "in": 90., "i": 90.
     }
-                  
-    match = length_match(length)
+    match = length_match(str(length))
     if match is None:
         raise SVGParseError("Not a valid length unit: '%s'" % length)
     

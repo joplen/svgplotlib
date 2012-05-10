@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import sys
 sys.path.append('..')
-import FLTK as Fl
+import svgplotlib.FLTK as Fl
 
 class TestWidget(Fl.Widget):
     def __init__(self, X, Y, W, H, L = ''):

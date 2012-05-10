@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import sys
 sys.path.append('..')
-import FLTK as Fl
+import svgplotlib.FLTK as Fl
 
 def tree_cb(widget, data):
     print 'cb', widget.callback_reason()

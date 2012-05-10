@@ -22,7 +22,7 @@ class Bar(Base):
         )
     """
     def __init__(self, values, labels = None, colors = None, **kwargs):
-        Base.__init__(self, **kwargs)
+        super(Bar,self).__init__(**kwargs)
         
         if labels is None:
             labels = [str(i) for i in range(len(values))]
